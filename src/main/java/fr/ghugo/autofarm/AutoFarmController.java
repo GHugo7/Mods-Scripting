@@ -244,23 +244,31 @@ public final class AutoFarmController {
 	}
 
 	/**
-	 * Casse le bloc visé s'il doit l'être. Sans menu ouvert, on maintient le clic gauche (comportement vanilla).
-	 * Avec un menu ouvert (Échap, inventaire...), Minecraft ignore le clic gauche : on casse alors directement
-	 * les blocs qui se cassent en un coup (cultures).
+	 * Casse le bloc visé s'il doit l'être. Les blocs qui se cassent en un coup (cultures) sont cassés directement,
+	 * que la souris soit capturée ou non et qu'un menu soit ouvert ou non. Pour les autres (melon/citrouille sans
+	 * hache), on maintient le clic gauche, ce qui ne marche qu'en jeu avec la souris capturée.
 	 */
 	private static void breakTarget(Minecraft mc) {
-		boolean attack = false;
+		boolean holdAttack = false;
 		if (mc.hitResult instanceof BlockHitResult blockHit && blockHit.getType() == HitResult.Type.BLOCK) {
 			BlockPos pos = blockHit.getBlockPos();
 			BlockState state = mc.level.getBlockState(pos);
-			attack = shouldBreak(state);
-			if (attack && mc.screen != null && state.getDestroyProgress(mc.player, mc.level, pos) >= 1.0F) {
-				if (mc.gameMode.startDestroyBlock(pos, blockHit.getDirection())) {
-					mc.player.swing(InteractionHand.MAIN_HAND);
+			if (shouldBreak(state)) {
+				if (state.getDestroyProgress(mc.player, mc.level, pos) >= 1.0F) {
+					if (mc.gameMode.startDestroyBlock(pos, blockHit.getDirection())) {
+						mc.player.swing(InteractionHand.MAIN_HAND);
+					}
+				} else if (mc.screen == null) {
+					holdAttack = true;
+					// Après des allers-retours dans les menus, la souris peut rester libérée : Minecraft ignore
+					// alors le clic maintenu. On la recapture si la fenêtre du jeu est active.
+					if (!mc.mouseHandler.isMouseGrabbed() && mc.isWindowActive()) {
+						mc.mouseHandler.grabMouse();
+					}
 				}
 			}
 		}
-		mc.options.keyAttack.setDown(attack && mc.screen == null);
+		mc.options.keyAttack.setDown(holdAttack);
 	}
 
 	private static boolean shouldBreak(BlockState state) {
