@@ -1,4 +1,5 @@
 {
 	"key.autofarm.open_menu": "Auto Farm: open menu",
-	"key.autofarm.toggle": "Auto Farm: start / stop"
+	"key.autofarm.toggle": "Auto Farm: start / stop",
+	"key.autofarm.pause": "Auto Farm: pause / resume"
 }

@@ -19,20 +19,32 @@ import net.minecraft.world.phys.HitResult;
 
 import java.util.Locale;
 
-/** Machine à états : gauche pendant X s, droite pendant Y s, en cassant les cultures visées. */
+/**
+ * Machine à états : dans une boucle, N allers-retours (gauche pendant X s, droite pendant Y s) en cassant les
+ * cultures visées, puis commande de fin de boucle et attente, et on recommence selon le nombre de boucles.
+ */
 public final class AutoFarmController {
-	private enum Phase { LEFT, RIGHT }
+	private enum Phase { LEFT, RIGHT, WAIT }
 
 	private static boolean running;
+	private static boolean paused;
 	private static Phase phase = Phase.LEFT;
 	private static int ticksLeftInPhase;
-	private static int cyclesDone;
+	/** Allers-retours terminés dans la boucle en cours. */
+	private static int tripsDone;
+	/** Boucles terminées. */
+	private static int loopsDone;
+	private static int pausedTicks;
 
 	private AutoFarmController() {
 	}
 
 	public static boolean isRunning() {
 		return running;
+	}
+
+	public static boolean isPaused() {
+		return running && paused;
 	}
 
 	public static void toggle(Minecraft mc) {
@@ -48,10 +60,12 @@ public final class AutoFarmController {
 			return;
 		}
 		running = true;
+		paused = false;
 		phase = Phase.LEFT;
 		ticksLeftInPhase = toTicks(AutoFarmConfig.leftSeconds);
-		cyclesDone = 0;
-		mc.gui.getChat().addMessage(Component.literal("§a[Auto Farm] Démarré (touche J pour arrêter)."));
+		tripsDone = 0;
+		loopsDone = 0;
+		chat(mc, "§a[Auto Farm] Démarré (H : pause, J : arrêter).");
 	}
 
 	public static void stop(Minecraft mc, String message) {
@@ -59,22 +73,53 @@ public final class AutoFarmController {
 			return;
 		}
 		running = false;
+		paused = false;
 		releaseKeys(mc);
 		if (message != null) {
-			mc.gui.getChat().addMessage(Component.literal("§e[Auto Farm] " + message));
+			chat(mc, "§e[Auto Farm] " + message);
 		}
 	}
 
-	/** Arrête le mod si le message reçu contient le texte du captcha. */
+	/** Met en pause en gardant la progression (phase, temps restant, allers-retours, boucles). */
+	public static void pause(Minecraft mc, String message) {
+		if (!running || paused) {
+			return;
+		}
+		paused = true;
+		pausedTicks = 0;
+		releaseKeys(mc);
+		chat(mc, "§e[Auto Farm] " + message);
+	}
+
+	/** Reprend exactement là où la pause a eu lieu. */
+	public static void resume(Minecraft mc) {
+		if (!running || !paused) {
+			return;
+		}
+		paused = false;
+		chat(mc, "§a[Auto Farm] Reprise (" + progress() + ").");
+	}
+
+	public static void togglePause(Minecraft mc) {
+		if (!running) {
+			chat(mc, "§7[Auto Farm] Rien à mettre en pause : appuyez sur J pour démarrer.");
+		} else if (paused) {
+			resume(mc);
+		} else {
+			pause(mc, "En pause (H pour reprendre).");
+		}
+	}
+
+	/** Met en pause si le message reçu contient le texte du captcha. */
 	public static void onChatMessage(Minecraft mc, Component message) {
 		String trigger = AutoFarmConfig.captchaText;
-		if (!running || trigger.isEmpty()) {
+		if (!running || paused || trigger.isEmpty()) {
 			return;
 		}
 		String text = ChatFormatting.stripFormatting(message.getString());
 		if (text != null && text.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT))) {
-			stop(mc, "Arrêté : captcha détecté. Faites le captcha puis appuyez sur J pour reprendre.");
-			AutoFarmAlert.trigger(mc, "Captcha détecté, le farm est arrêté.");
+			pause(mc, "En pause : captcha détecté. Faites le captcha puis appuyez sur H pour reprendre.");
+			AutoFarmAlert.trigger(mc, "Captcha détecté, le farm est en pause.");
 		}
 	}
 
@@ -85,46 +130,117 @@ public final class AutoFarmController {
 		}
 		if (mc.player == null || mc.level == null || mc.gameMode == null) {
 			running = false;
+			paused = false;
 			return;
 		}
 		if (!mc.player.isAlive()) {
 			stop(mc, "Arrêté (joueur mort).");
 			return;
 		}
-		if (ticksLeftInPhase <= 0) {
-			if (phase == Phase.LEFT) {
-				phase = Phase.RIGHT;
-				ticksLeftInPhase = toTicks(AutoFarmConfig.rightSeconds);
-			} else {
-				cyclesDone++;
-				if (AutoFarmConfig.cycles > 0 && cyclesDone >= AutoFarmConfig.cycles) {
-					stop(mc, "Terminé (" + cyclesDone + " aller(s)-retour(s)).");
-					return;
-				}
-				phase = Phase.LEFT;
-				ticksLeftInPhase = toTicks(AutoFarmConfig.leftSeconds);
+		if (paused) {
+			releaseKeys(mc);
+			if (pausedTicks++ % 40 == 0) {
+				mc.gui.setOverlayMessage(Component.literal("§eAuto Farm en pause §7(" + progress() + ") §f— H pour reprendre"), false);
 			}
+			return;
 		}
 
+		if (ticksLeftInPhase <= 0 && !nextPhase(mc)) {
+			return;
+		}
+
+		boolean moving = phase != Phase.WAIT;
 		mc.options.keyLeft.setDown(phase == Phase.LEFT);
 		mc.options.keyRight.setDown(phase == Phase.RIGHT);
 
-		if (AutoFarmConfig.breakBlocks) {
+		if (moving && AutoFarmConfig.breakBlocks) {
 			breakTarget(mc);
 		} else {
 			mc.options.keyAttack.setDown(false);
 		}
 
 		if (ticksLeftInPhase % 10 == 0) {
-			String dir = phase == Phase.LEFT ? "← Gauche" : "Droite →";
-			String cycleInfo = AutoFarmConfig.cycles > 0
-					? " | cycle " + (cyclesDone + 1) + "/" + AutoFarmConfig.cycles
-					: " | cycle " + (cyclesDone + 1);
-			mc.gui.setOverlayMessage(Component.literal(
-					"§6Auto Farm §f" + dir + " §7" + String.format("%.1f", ticksLeftInPhase / 20.0) + "s" + cycleInfo), false);
+			String what = switch (phase) {
+				case LEFT -> "← Gauche";
+				case RIGHT -> "Droite →";
+				case WAIT -> "Attente";
+			};
+			mc.gui.setOverlayMessage(Component.literal("§6Auto Farm §f" + what + " §7"
+					+ String.format("%.1f", ticksLeftInPhase / 20.0) + "s | " + progress()), false);
 		}
 
 		ticksLeftInPhase--;
+	}
+
+	/** Passe à la phase suivante. Retourne false si le farm vient de se terminer. */
+	private static boolean nextPhase(Minecraft mc) {
+		switch (phase) {
+			case LEFT -> setPhase(Phase.RIGHT, AutoFarmConfig.rightSeconds);
+			case RIGHT -> {
+				tripsDone++;
+				if (tripsDone < AutoFarmConfig.trips) {
+					setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
+					break;
+				}
+				// Fin de la boucle.
+				loopsDone++;
+				tripsDone = 0;
+				boolean sent = sendEndCommand(mc);
+				if (AutoFarmConfig.loops > 0 && loopsDone >= AutoFarmConfig.loops) {
+					stop(mc, "Terminé (" + loopsDone + " boucle(s) de " + AutoFarmConfig.trips + " aller(s)-retour(s)).");
+					return false;
+				}
+				if (sent && AutoFarmConfig.endWaitSeconds > 0) {
+					setPhase(Phase.WAIT, AutoFarmConfig.endWaitSeconds);
+				} else {
+					setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
+				}
+			}
+			case WAIT -> setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
+		}
+		return true;
+	}
+
+	private static void setPhase(Phase next, double seconds) {
+		phase = next;
+		ticksLeftInPhase = toTicks(seconds);
+	}
+
+	/** Envoie la ou les commandes de fin de boucle (séparées par « ; »). */
+	private static boolean sendEndCommand(Minecraft mc) {
+		boolean sent = false;
+		for (String part : AutoFarmConfig.endCommand.split(";")) {
+			String cmd = part.trim();
+			if (cmd.isEmpty() || mc.player == null) {
+				continue;
+			}
+			if (cmd.startsWith("/")) {
+				mc.player.connection.sendCommand(cmd.substring(1));
+			} else {
+				mc.player.connection.sendChat(cmd);
+			}
+			sent = true;
+		}
+		return sent;
+	}
+
+	private static String progress() {
+		String loopInfo = AutoFarmConfig.loops > 0
+				? (loopsDone + 1) + "/" + AutoFarmConfig.loops
+				: (loopsDone + 1) + "/∞";
+		return "aller-retour " + (tripsDone + 1) + "/" + AutoFarmConfig.trips + " | boucle " + loopInfo;
+	}
+
+	/** Texte d'état pour le menu. */
+	public static String status() {
+		if (!running) {
+			return "§7Arrêté";
+		}
+		return (paused ? "§eEn pause" : "§aEn cours") + " §7(" + progress() + ")";
+	}
+
+	private static void chat(Minecraft mc, String message) {
+		mc.gui.getChat().addMessage(Component.literal(message));
 	}
 
 	/**

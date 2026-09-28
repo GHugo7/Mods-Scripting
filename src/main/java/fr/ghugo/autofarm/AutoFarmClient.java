@@ -16,6 +16,7 @@ public class AutoFarmClient implements ClientModInitializer {
 
 	private static KeyMapping openMenuKey;
 	private static KeyMapping toggleKey;
+	private static KeyMapping pauseKey;
 
 	@Override
 	public void onInitializeClient() {
@@ -25,6 +26,8 @@ public class AutoFarmClient implements ClientModInitializer {
 				"key.autofarm.open_menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, KeyMapping.Category.MISC));
 		toggleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.autofarm.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, KeyMapping.Category.MISC));
+		pauseKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.autofarm.pause", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, KeyMapping.Category.MISC));
 
 		ClientReceiveMessageEvents.GAME.register((message, overlay) ->
 				AutoFarmController.onChatMessage(Minecraft.getInstance(), message));
@@ -38,6 +41,9 @@ public class AutoFarmClient implements ClientModInitializer {
 			}
 			while (toggleKey.consumeClick()) {
 				AutoFarmController.toggle(mc);
+			}
+			while (pauseKey.consumeClick()) {
+				AutoFarmController.togglePause(mc);
 			}
 		});
 	}

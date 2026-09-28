@@ -17,7 +17,10 @@ public class AutoFarmScreen extends Screen {
 	private final Screen parent;
 	private EditBox leftBox;
 	private EditBox rightBox;
-	private EditBox cyclesBox;
+	private EditBox tripsBox;
+	private EditBox loopsBox;
+	private EditBox commandBox;
+	private EditBox waitBox;
 	private EditBox captchaBox;
 	private String error = "";
 
@@ -29,48 +32,68 @@ public class AutoFarmScreen extends Screen {
 	@Override
 	protected void init() {
 		int cx = this.width / 2;
-		int y = 32;
+		int left = cx - 205;
+		int right = cx + 5;
 
-		leftBox = numberBox(cx + 5, y, format(AutoFarmConfig.leftSeconds), "Secondes à gauche");
+		// Colonne de gauche : déplacement et boucles.
+		int y = 36;
+		leftBox = numberBox(cx - 100, y, format(AutoFarmConfig.leftSeconds), "Secondes à gauche");
+		leftBox.setTooltip(tip("Durée (en secondes) pendant laquelle le joueur va à gauche. Décimales acceptées (ex. 7.5)."));
 		y += 22;
-		rightBox = numberBox(cx + 5, y, format(AutoFarmConfig.rightSeconds), "Secondes à droite");
+		rightBox = numberBox(cx - 100, y, format(AutoFarmConfig.rightSeconds), "Secondes à droite");
+		rightBox.setTooltip(tip("Durée (en secondes) pendant laquelle le joueur va à droite. Décimales acceptées (ex. 7.5)."));
 		y += 22;
-		cyclesBox = numberBox(cx + 5, y, String.valueOf(AutoFarmConfig.cycles), "Allers-retours");
-		cyclesBox.setFilter(s -> s.matches("\\d{0,5}"));
-		cyclesBox.setHint(Component.literal("0 = infini"));
-		cyclesBox.setTooltip(tip("Nombre d'allers-retours (gauche puis droite) avant de s'arrêter. 0 ou vide = sans fin."));
+		tripsBox = numberBox(cx - 100, y, String.valueOf(AutoFarmConfig.trips), "Allers-retours");
+		tripsBox.setFilter(s -> s.matches("\\d{0,4}"));
+		tripsBox.setTooltip(tip("Nombre d'allers-retours (gauche puis droite) dans une boucle. Minimum 1."));
 		y += 22;
-		captchaBox = new EditBox(this.font, cx + 5, y, 95, 20, Component.literal("Texte du captcha"));
+		loopsBox = numberBox(cx - 100, y, String.valueOf(AutoFarmConfig.loops), "Boucles");
+		loopsBox.setFilter(s -> s.matches("\\d{0,5}"));
+		loopsBox.setHint(Component.literal("0 = infini"));
+		loopsBox.setTooltip(tip("Nombre de fois que toute la boucle (les allers-retours + la commande de fin) est répétée. 0 ou vide = sans fin."));
+		y += 22;
+		commandBox = new EditBox(this.font, cx - 100, y, 95, 20, Component.literal("Commande de fin"));
+		commandBox.setMaxLength(256);
+		commandBox.setValue(AutoFarmConfig.endCommand);
+		commandBox.setHint(Component.literal("ex. /home farm"));
+		commandBox.setTooltip(tip("Commande envoyée à la fin de chaque boucle (ex. /home farm). Plusieurs commandes : séparez-les par ; . Vide = aucune."));
+		addRenderableWidget(commandBox);
+		y += 22;
+		waitBox = numberBox(cx - 100, y, format(AutoFarmConfig.endWaitSeconds), "Attente");
+		waitBox.setTooltip(tip("Temps d'attente (en secondes) après la commande de fin, avant de repartir (ex. le temps de la téléportation)."));
+
+		// Colonne de droite : captcha, casse et alertes.
+		y = 36;
+		captchaBox = new EditBox(this.font, cx + 110, y, 95, 20, Component.literal("Texte du captcha"));
 		captchaBox.setMaxLength(100);
 		captchaBox.setValue(AutoFarmConfig.captchaText);
-		captchaBox.setTooltip(tip("Si un message du chat contient ce texte, le mod s'arrête et vous prévient. Vide = désactivé."));
+		captchaBox.setTooltip(tip("Si un message du chat contient ce texte, le mod se met en pause (en gardant sa progression) et vous prévient. Vide = désactivé."));
 		addRenderableWidget(captchaBox);
-		y += 24;
-
+		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Casse auto", AutoFarmConfig.breakBlocks), b -> {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
 			b.setMessage(toggleLabel("Casse auto", AutoFarmConfig.breakBlocks));
-		}).tooltip(tip("Maintient le clic gauche pour casser le bloc que vous visez pendant les déplacements. NON = le mod se déplace seulement.")).bounds(cx - 100, y, 98, 20).build());
+		}).tooltip(tip("Maintient le clic gauche pour casser le bloc que vous visez pendant les déplacements. NON = le mod se déplace seulement.")).bounds(right, y, 98, 20).build());
 		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
 			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
 			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
-		}).tooltip(tip("Au captcha, affiche une notification Windows / Mac / Linux, même si Minecraft est en arrière-plan.")).bounds(cx + 2, y, 98, 20).build());
+		}).tooltip(tip("Au captcha, affiche une notification Windows / Mac / Linux, même si Minecraft est en arrière-plan.")).bounds(right + 102, y, 98, 20).build());
 		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Seulement cultures", AutoFarmConfig.cropsOnly), b -> {
 			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
 			b.setMessage(toggleLabel("Seulement cultures", AutoFarmConfig.cropsOnly));
-		}).tooltip(tip("OUI = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne, cactus, bambou, melon, citrouille) : la terre labourée et les autres blocs ne sont jamais cassés. NON = casse n'importe quel bloc visé.")).bounds(cx - 100, y, 200, 20).build());
+		}).tooltip(tip("OUI = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne, cactus, bambou, melon, citrouille) : la terre labourée et les autres blocs ne sont jamais cassés. NON = casse n'importe quel bloc visé.")).bounds(right, y, 200, 20).build());
 		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Seulement mûres", AutoFarmConfig.matureOnly), b -> {
 			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
 			b.setMessage(toggleLabel("Seulement mûres", AutoFarmConfig.matureOnly));
-		}).tooltip(tip("OUI = ignore les cultures qui n'ont pas fini de pousser (blé, carottes, patates, betteraves, verrues, cacao). NON = casse aussi les jeunes pousses.")).bounds(cx - 100, y, 200, 20).build());
+		}).tooltip(tip("OUI = ignore les cultures qui n'ont pas fini de pousser (blé, carottes, patates, betteraves, verrues, cacao). NON = casse aussi les jeunes pousses.")).bounds(right, y, 200, 20).build());
 		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Alarme", AutoFarmConfig.loudAlarm), b -> {
 			AutoFarmConfig.loudAlarm = !AutoFarmConfig.loudAlarm;
 			b.setMessage(toggleLabel("Alarme", AutoFarmConfig.loudAlarm));
-		}).tooltip(tip("Au captcha, joue une série de bips pendant environ 5 secondes, au volume réglé à droite.")).bounds(cx - 100, y, 98, 20).build());
-		AbstractSliderButton volumeSlider = new AbstractSliderButton(cx + 2, y, 98, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
+		}).tooltip(tip("Au captcha, joue une série de bips pendant environ 5 secondes, au volume réglé à droite.")).bounds(right, y, 98, 20).build());
+		AbstractSliderButton volumeSlider = new AbstractSliderButton(right + 102, y, 98, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
 			@Override
 			protected void updateMessage() {
 				setMessage(volumeLabel());
@@ -83,9 +106,12 @@ public class AutoFarmScreen extends Screen {
 		};
 		volumeSlider.setTooltip(tip("Volume des bips de l'alarme (indépendant du volume de Minecraft). Utilisez « Tester » pour l'essayer."));
 		addRenderableWidget(volumeSlider);
-		y += 26;
-		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
-		addRenderableWidget(Button.builder(startLabel, b -> {
+
+		// Boutons du bas.
+		y = 176;
+		boolean running = AutoFarmController.isRunning();
+		boolean paused = AutoFarmController.isPaused();
+		addRenderableWidget(Button.builder(Component.literal(running ? "§cArrêter" : "§aDémarrer"), b -> {
 			if (AutoFarmController.isRunning()) {
 				AutoFarmController.stop(this.minecraft, "Auto Farm arrêté.");
 				onClose();
@@ -94,16 +120,30 @@ public class AutoFarmScreen extends Screen {
 				this.minecraft.setScreen(null);
 				AutoFarmController.start(this.minecraft);
 			}
-		}).bounds(cx - 100, y, 66, 20).build());
+		}).tooltip(tip("Démarre depuis le début, ou arrête complètement (la progression est perdue). Touche J.")).bounds(left, y, 100, 20).build());
+		Button pauseButton = addRenderableWidget(Button.builder(Component.literal(paused ? "§aReprendre" : "§ePause"), b -> {
+			if (AutoFarmController.isPaused()) {
+				if (!applyValues()) {
+					return;
+				}
+				AutoFarmConfig.save();
+				this.minecraft.setScreen(null);
+				AutoFarmController.resume(this.minecraft);
+			} else {
+				AutoFarmController.pause(this.minecraft, "En pause (H pour reprendre).");
+				this.minecraft.setScreen(null);
+			}
+		}).tooltip(tip("Met en pause sans perdre la progression, puis reprend exactement au même endroit. Touche H.")).bounds(left + 103, y, 100, 20).build());
+		pauseButton.active = running;
 		addRenderableWidget(Button.builder(Component.literal("Enregistrer"), b -> {
 			if (applyValues()) {
 				AutoFarmConfig.save();
 				onClose();
 			}
-		}).bounds(cx - 32, y, 66, 20).build());
-		addRenderableWidget(Button.builder(Component.literal("Tester"), b ->
+		}).bounds(left + 206, y, 100, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b ->
 				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
-		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(cx + 36, y, 64, 20).build());
+		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(left + 309, y, 100, 20).build());
 	}
 
 	private EditBox numberBox(int x, int y, String value, String label) {
@@ -119,14 +159,19 @@ public class AutoFarmScreen extends Screen {
 		try {
 			double left = parse(leftBox.getValue());
 			double right = parse(rightBox.getValue());
-			int cycles = cyclesBox.getValue().isEmpty() ? 0 : Integer.parseInt(cyclesBox.getValue());
+			int trips = tripsBox.getValue().isEmpty() ? 1 : Integer.parseInt(tripsBox.getValue());
+			int loops = loopsBox.getValue().isEmpty() ? 0 : Integer.parseInt(loopsBox.getValue());
+			double wait = waitBox.getValue().isEmpty() ? 0 : parse(waitBox.getValue());
 			if (left <= 0 || right <= 0) {
 				error = "Les durées doivent être supérieures à 0.";
 				return false;
 			}
 			AutoFarmConfig.leftSeconds = left;
 			AutoFarmConfig.rightSeconds = right;
-			AutoFarmConfig.cycles = cycles;
+			AutoFarmConfig.trips = Math.max(1, trips);
+			AutoFarmConfig.loops = loops;
+			AutoFarmConfig.endCommand = commandBox.getValue().trim();
+			AutoFarmConfig.endWaitSeconds = wait;
 			AutoFarmConfig.captchaText = captchaBox.getValue().trim();
 			error = "";
 			return true;
@@ -161,15 +206,20 @@ public class AutoFarmScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, partialTick);
 		int cx = this.width / 2;
 		graphics.drawCenteredString(this.font, this.title, cx, 6, WHITE);
+		graphics.drawCenteredString(this.font, "État : " + AutoFarmController.status(), cx, 20, WHITE);
+		int left = cx - 205;
+		graphics.drawString(this.font, "Secondes à gauche :", left, 42, WHITE);
+		graphics.drawString(this.font, "Secondes à droite :", left, 64, WHITE);
+		graphics.drawString(this.font, "Allers-retours :", left, 86, WHITE);
+		graphics.drawString(this.font, "Boucles :", left, 108, WHITE);
+		graphics.drawString(this.font, "Commande de fin :", left, 130, WHITE);
+		graphics.drawString(this.font, "Attente après (s) :", left, 152, WHITE);
+		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, "J : démarrer / arrêter  |  survolez pour l'aide", cx, 18, GRAY);
+			graphics.drawCenteredString(this.font, "K : menu  |  J : démarrer/arrêter  |  H : pause  |  survolez pour l'aide", cx, 202, GRAY);
 		} else {
-			graphics.drawCenteredString(this.font, error, cx, 18, RED);
+			graphics.drawCenteredString(this.font, error, cx, 202, RED);
 		}
-		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 38, WHITE);
-		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 60, WHITE);
-		graphics.drawString(this.font, "Allers-retours :", cx - 100, 82, WHITE);
-		graphics.drawString(this.font, "Arrêt si le chat dit :", cx - 100, 104, WHITE);
 	}
 
 	@Override

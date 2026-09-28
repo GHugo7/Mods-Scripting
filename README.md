@@ -8,29 +8,45 @@ en boucle, tout en **tapant (cassant) les cultures** visées.
 | Touche | Action |
 |---|---|
 | `K` | Ouvre le menu de réglages |
-| `J` | Démarre / arrête |
+| `J` | Démarre depuis le début / arrête complètement |
+| `H` | Pause / reprendre (la progression est gardée) |
 
 Les touches sont modifiables dans *Options > Contrôles > Divers*.
 
-Dans le menu (passez la souris sur un bouton pour voir son explication) :
+### Déroulement
+
+Une **boucle** = *Allers-retours* × (gauche pendant X s, puis droite pendant Y s), puis la *Commande de fin*,
+puis l'*Attente*. Le mod répète la boucle *Boucles* fois (0 = sans fin).
+
+Exemple : 3 allers-retours, 2 boucles, commande `/home farm`, attente 3 s →
+G-D-G-D-G-D, `/home farm`, 3 s d'attente, G-D-G-D-G-D, `/home farm`, fin.
+
+### Réglages du menu
+
+Passez la souris sur un bouton ou une case pour voir son explication.
 
 | Réglage | Ancien nom | Ce qu'il fait |
 |---|---|---|
 | **Secondes à gauche / à droite** | — | Durée de chaque côté (décimales acceptées, ex. `7.5`). |
-| **Allers-retours** | Allers-retours (0 = ∞) | Nombre de cycles gauche + droite avant l'arrêt. `0` ou vide = sans fin. |
-| **Arrêt si le chat dit** | — | Si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête et vous prévient. Par défaut `/captcha start`. Vide = désactivé. Après le captcha, `J` pour reprendre. |
+| **Allers-retours** | — | Nombre d'allers-retours (gauche puis droite) dans une boucle. Minimum 1. |
+| **Boucles** | Allers-retours (0 = ∞) | Nombre de fois que la boucle est répétée. `0` ou vide = sans fin. |
+| **Commande de fin** | — | Commande envoyée à la fin de chaque boucle (ex. `/home farm`). Plusieurs : séparez par `;`. Vide = aucune. |
+| **Attente après (s)** | — | Temps d'attente après la commande de fin avant de repartir (ex. le temps de la téléportation). |
+| **Texte captcha** | Arrêt si le chat dit | Si un message du chat contient ce texte (majuscules ignorées), le mod se **met en pause en gardant sa progression** et vous prévient. Par défaut `/captcha start`. Vide = désactivé. Après le captcha, `H` pour reprendre. |
 | **Casse auto** | Casser / Casser les blocs visés | Maintient le clic gauche pour casser ce que vous visez pendant les déplacements. **NON** = le mod se déplace seulement. |
 | **Seulement cultures** | Cultures / Cultures uniquement | **OUI** = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne à sucre, cactus, bambou, melon, citrouille), jamais la terre labourée. **NON** = casse n'importe quel bloc visé. |
 | **Seulement mûres** | Mûres / Cultures mûres uniquement | **OUI** = ignore les cultures qui n'ont pas fini de pousser. **NON** = casse aussi les jeunes pousses. |
 | **Notif PC** | — | Au captcha, notification Windows / macOS / Linux, même si Minecraft est en arrière-plan. |
 | **Alarme** | — | Au captcha, bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas). |
 | **Volume** | Volume alarme | Volume des bips, de 0 à 100 % (30 % par défaut). |
-| **Tester** | Tester l'alerte | Déclenche l'alerte tout de suite pour vérifier le son et la notification. |
+| **Démarrer / Arrêter** | — | Démarre depuis le début, ou arrête complètement (progression perdue). Comme `J`. |
+| **Pause / Reprendre** | — | Met en pause puis reprend exactement au même endroit (même côté, même temps restant, même aller-retour et même boucle). Comme `H`. Les réglages modifiés pendant la pause sont pris en compte à la reprise. |
+| **Tester l'alerte** | Tester | Déclenche l'alerte tout de suite pour vérifier le son et la notification. |
 
 Au captcha, un gros titre « CAPTCHA ! » s'affiche aussi en jeu et l'icône de Minecraft clignote dans la barre des tâches.
 
 Visez les cultures (regard vers le bas/devant) avant de lancer. Le mod continue de tourner quand un menu est
-ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il s'arrête avec `J` ou si vous mourez.
+ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il se met en pause avec `H`, s'arrête avec `J` ou si vous mourez.
 En solo, Échap met le monde en pause : ouvrez le monde en LAN pour que la ferme continue, et `F3 + P`
 désactive la pause automatique quand la fenêtre perd le focus. Les réglages sont sauvegardés dans
 `config/autofarm.properties`.
