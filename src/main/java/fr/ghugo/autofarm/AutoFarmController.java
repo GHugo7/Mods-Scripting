@@ -1,7 +1,9 @@
 package fr.ghugo.autofarm;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BambooStalkBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -73,12 +75,6 @@ public final class AutoFarmController {
 			stop(mc, "Arrêté (joueur mort).");
 			return;
 		}
-		// Un menu est ouvert (inventaire, chat, pause...) : on met en pause sans avancer le chrono.
-		if (mc.screen != null) {
-			releaseKeys(mc);
-			return;
-		}
-
 		if (ticksLeftInPhase <= 0) {
 			if (phase == Phase.LEFT) {
 				phase = Phase.RIGHT;
@@ -115,13 +111,24 @@ public final class AutoFarmController {
 		ticksLeftInPhase--;
 	}
 
-	/** Maintient le clic gauche uniquement quand le bloc visé doit être cassé. */
+	/**
+	 * Casse le bloc visé s'il doit l'être. Sans menu ouvert, on maintient le clic gauche (comportement vanilla).
+	 * Avec un menu ouvert (Échap, inventaire...), Minecraft ignore le clic gauche : on casse alors directement
+	 * les blocs qui se cassent en un coup (cultures).
+	 */
 	private static void breakTarget(Minecraft mc) {
 		boolean attack = false;
 		if (mc.hitResult instanceof BlockHitResult blockHit && blockHit.getType() == HitResult.Type.BLOCK) {
-			attack = shouldBreak(mc.level.getBlockState(blockHit.getBlockPos()));
+			BlockPos pos = blockHit.getBlockPos();
+			BlockState state = mc.level.getBlockState(pos);
+			attack = shouldBreak(state);
+			if (attack && mc.screen != null && state.getDestroyProgress(mc.player, mc.level, pos) >= 1.0F) {
+				if (mc.gameMode.startDestroyBlock(pos, blockHit.getDirection())) {
+					mc.player.swing(InteractionHand.MAIN_HAND);
+				}
+			}
 		}
-		mc.options.keyAttack.setDown(attack);
+		mc.options.keyAttack.setDown(attack && mc.screen == null);
 	}
 
 	private static boolean shouldBreak(BlockState state) {

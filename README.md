@@ -20,8 +20,10 @@ Dans le menu :
   canne à sucre, cactus, bambou, melons et citrouilles (évite de casser la terre labourée).
 - **Cultures mûres uniquement** : ignore les cultures pas encore arrivées à maturité.
 
-Visez les cultures (regard vers le bas/devant) avant de lancer. Ouvrir un menu (inventaire, chat, Échap)
-met le mod en pause ; il s'arrête si vous mourez. Les réglages sont sauvegardés dans
+Visez les cultures (regard vers le bas/devant) avant de lancer. Le mod continue de tourner quand un menu est
+ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il s'arrête avec `J` ou si vous mourez.
+En solo, Échap met le monde en pause : ouvrez le monde en LAN pour que la ferme continue, et `F3 + P`
+désactive la pause automatique quand la fenêtre perd le focus. Les réglages sont sauvegardés dans
 `config/autofarm.properties`.
 
 ## Installation
