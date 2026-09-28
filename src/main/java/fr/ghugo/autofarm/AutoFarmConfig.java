@@ -29,6 +29,8 @@ public final class AutoFarmConfig {
 	public static String captchaText = "/captcha start";
 	/** Alarme sonore forte au captcha. */
 	public static boolean loudAlarm = true;
+	/** Volume de l'alarme, de 0 à 1. */
+	public static double alarmVolume = 0.3;
 	/** Notification Windows/macOS/Linux au captcha. */
 	public static boolean desktopNotification = true;
 
@@ -50,6 +52,7 @@ public final class AutoFarmConfig {
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
 			captchaText = p.getProperty("captchaText", captchaText);
 			loudAlarm = Boolean.parseBoolean(p.getProperty("loudAlarm", String.valueOf(loudAlarm)));
+			alarmVolume = Math.clamp(Double.parseDouble(p.getProperty("alarmVolume", String.valueOf(alarmVolume))), 0.0, 1.0);
 			desktopNotification = Boolean.parseBoolean(p.getProperty("desktopNotification", String.valueOf(desktopNotification)));
 		} catch (IOException | NumberFormatException e) {
 			AutoFarmClient.LOGGER.warn("Impossible de lire {}", FILE, e);
@@ -66,6 +69,7 @@ public final class AutoFarmConfig {
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
 		p.setProperty("captchaText", captchaText);
 		p.setProperty("loudAlarm", String.valueOf(loudAlarm));
+		p.setProperty("alarmVolume", String.valueOf(alarmVolume));
 		p.setProperty("desktopNotification", String.valueOf(desktopNotification));
 		try {
 			Files.createDirectories(FILE.getParent());

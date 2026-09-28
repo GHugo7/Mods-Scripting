@@ -21,8 +21,8 @@ Dans le menu :
 - **Cultures mûres uniquement** : ignore les cultures pas encore arrivées à maturité.
 - **Arrêt si le chat dit** : si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête
   et vous prévient. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
-- **Alarme** : série de bips forts pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas,
-  seul le volume du PC compte).
+- **Alarme** : série de bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas).
+- **Volume alarme** : curseur de 0 à 100 % (30 % par défaut). Utilisez « Tester l'alerte » pour régler.
 - **Notif PC** : notification Windows / macOS / Linux (`notify-send`).
 - **Tester** : déclenche l'alerte pour vérifier le son et la notification.
 

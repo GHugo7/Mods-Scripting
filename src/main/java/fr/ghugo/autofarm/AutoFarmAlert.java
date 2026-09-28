@@ -58,10 +58,12 @@ public final class AutoFarmAlert {
 
 	private static void writeTone(SourceDataLine line, double frequency, double seconds) {
 		int samples = (int) (SAMPLE_RATE * seconds);
+		// Volume au carré : la sensation de volume suit mieux le curseur.
+		double amplitude = AutoFarmConfig.alarmVolume * AutoFarmConfig.alarmVolume * 0.9;
 		byte[] buffer = new byte[samples * 2];
 		for (int i = 0; i < samples; i++) {
 			short value = frequency <= 0 ? 0
-					: (short) (Math.sin(2 * Math.PI * frequency * i / SAMPLE_RATE) * 0.9 * Short.MAX_VALUE);
+					: (short) (Math.sin(2 * Math.PI * frequency * i / SAMPLE_RATE) * amplitude * Short.MAX_VALUE);
 			buffer[2 * i] = (byte) value;
 			buffer[2 * i + 1] = (byte) (value >> 8);
 		}

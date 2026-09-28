@@ -1,6 +1,7 @@
 package fr.ghugo.autofarm;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -42,32 +43,43 @@ public class AutoFarmScreen extends Screen {
 		addRenderableWidget(captchaBox);
 		y += 24;
 
-		addRenderableWidget(Button.builder(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks), b -> {
+		addRenderableWidget(Button.builder(toggleLabel("Casser", AutoFarmConfig.breakBlocks), b -> {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
-			b.setMessage(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks));
-		}).bounds(cx - 100, y, 200, 20).build());
-		y += 22;
-		addRenderableWidget(Button.builder(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly), b -> {
+			b.setMessage(toggleLabel("Casser", AutoFarmConfig.breakBlocks));
+		}).bounds(cx - 100, y, 98, 20).build());
+		addRenderableWidget(Button.builder(toggleLabel("Cultures", AutoFarmConfig.cropsOnly), b -> {
 			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
-			b.setMessage(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly));
-		}).bounds(cx - 100, y, 200, 20).build());
+			b.setMessage(toggleLabel("Cultures", AutoFarmConfig.cropsOnly));
+		}).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
-		addRenderableWidget(Button.builder(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly), b -> {
+		addRenderableWidget(Button.builder(toggleLabel("Mûres", AutoFarmConfig.matureOnly), b -> {
 			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
-			b.setMessage(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly));
-		}).bounds(cx - 100, y, 200, 20).build());
+			b.setMessage(toggleLabel("Mûres", AutoFarmConfig.matureOnly));
+		}).bounds(cx - 100, y, 98, 20).build());
+		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
+			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
+			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
+		}).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Alarme", AutoFarmConfig.loudAlarm), b -> {
 			AutoFarmConfig.loudAlarm = !AutoFarmConfig.loudAlarm;
 			b.setMessage(toggleLabel("Alarme", AutoFarmConfig.loudAlarm));
-		}).bounds(cx - 100, y, 72, 20).build());
-		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
-			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
-			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
-		}).bounds(cx - 26, y, 80, 20).build());
-		addRenderableWidget(Button.builder(Component.literal("Tester"), b ->
+		}).bounds(cx - 100, y, 98, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b ->
 				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
-		).bounds(cx + 56, y, 44, 20).build());
+		).bounds(cx + 2, y, 98, 20).build());
+		y += 22;
+		addRenderableWidget(new AbstractSliderButton(cx - 100, y, 200, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
+			@Override
+			protected void updateMessage() {
+				setMessage(volumeLabel());
+			}
+
+			@Override
+			protected void applyValue() {
+				AutoFarmConfig.alarmVolume = this.value;
+			}
+		});
 		y += 26;
 		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
 		addRenderableWidget(Button.builder(startLabel, b -> {
@@ -124,6 +136,10 @@ public class AutoFarmScreen extends Screen {
 
 	private static String format(double d) {
 		return d == Math.rint(d) ? String.valueOf((long) d) : String.valueOf(d);
+	}
+
+	private static Component volumeLabel() {
+		return Component.literal("Volume alarme : " + Math.round(AutoFarmConfig.alarmVolume * 100) + "%");
 	}
 
 	private static Component toggleLabel(String name, boolean on) {
