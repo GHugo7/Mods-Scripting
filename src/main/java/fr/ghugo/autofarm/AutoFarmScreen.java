@@ -1,0 +1,138 @@
+package fr.ghugo.autofarm;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+/** Interface de configuration (touche K). */
+public class AutoFarmScreen extends Screen {
+	private static final int WHITE = 0xFFFFFFFF;
+	private static final int GRAY = 0xFFA0A0A0;
+	private static final int RED = 0xFFFF5555;
+
+	private final Screen parent;
+	private EditBox leftBox;
+	private EditBox rightBox;
+	private EditBox cyclesBox;
+	private String error = "";
+
+	public AutoFarmScreen(Screen parent) {
+		super(Component.literal("Auto Farm Sweep"));
+		this.parent = parent;
+	}
+
+	@Override
+	protected void init() {
+		int cx = this.width / 2;
+		int y = 40;
+
+		leftBox = numberBox(cx + 5, y, format(AutoFarmConfig.leftSeconds), "Secondes à gauche");
+		y += 24;
+		rightBox = numberBox(cx + 5, y, format(AutoFarmConfig.rightSeconds), "Secondes à droite");
+		y += 24;
+		cyclesBox = numberBox(cx + 5, y, String.valueOf(AutoFarmConfig.cycles), "Allers-retours");
+		cyclesBox.setFilter(s -> s.matches("\\d{0,5}"));
+		y += 30;
+
+		addRenderableWidget(Button.builder(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks), b -> {
+			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
+			b.setMessage(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks));
+		}).bounds(cx - 100, y, 200, 20).build());
+		y += 24;
+		addRenderableWidget(Button.builder(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly), b -> {
+			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
+			b.setMessage(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly));
+		}).bounds(cx - 100, y, 200, 20).build());
+		y += 24;
+		addRenderableWidget(Button.builder(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly), b -> {
+			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
+			b.setMessage(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly));
+		}).bounds(cx - 100, y, 200, 20).build());
+		y += 32;
+
+		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
+		addRenderableWidget(Button.builder(startLabel, b -> {
+			if (AutoFarmController.isRunning()) {
+				AutoFarmController.stop(this.minecraft, "Auto Farm arrêté.");
+				onClose();
+			} else if (applyValues()) {
+				AutoFarmConfig.save();
+				this.minecraft.setScreen(null);
+				AutoFarmController.start(this.minecraft);
+			}
+		}).bounds(cx - 100, y, 98, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Enregistrer"), b -> {
+			if (applyValues()) {
+				AutoFarmConfig.save();
+				onClose();
+			}
+		}).bounds(cx + 2, y, 98, 20).build());
+	}
+
+	private EditBox numberBox(int x, int y, String value, String label) {
+		EditBox box = new EditBox(this.font, x, y, 95, 20, Component.literal(label));
+		box.setMaxLength(8);
+		box.setFilter(s -> s.matches("\\d{0,5}([.,]\\d{0,2})?"));
+		box.setValue(value);
+		addRenderableWidget(box);
+		return box;
+	}
+
+	private boolean applyValues() {
+		try {
+			double left = parse(leftBox.getValue());
+			double right = parse(rightBox.getValue());
+			int cycles = cyclesBox.getValue().isEmpty() ? 0 : Integer.parseInt(cyclesBox.getValue());
+			if (left <= 0 || right <= 0) {
+				error = "Les durées doivent être supérieures à 0.";
+				return false;
+			}
+			AutoFarmConfig.leftSeconds = left;
+			AutoFarmConfig.rightSeconds = right;
+			AutoFarmConfig.cycles = cycles;
+			error = "";
+			return true;
+		} catch (NumberFormatException e) {
+			error = "Valeur invalide.";
+			return false;
+		}
+	}
+
+	private static double parse(String s) {
+		return Double.parseDouble(s.replace(',', '.'));
+	}
+
+	private static String format(double d) {
+		return d == Math.rint(d) ? String.valueOf((long) d) : String.valueOf(d);
+	}
+
+	private static Component toggleLabel(String name, boolean on) {
+		return Component.literal(name + " : " + (on ? "§aOUI" : "§cNON"));
+	}
+
+	@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+		int cx = this.width / 2;
+		graphics.drawCenteredString(this.font, this.title, cx, 15, WHITE);
+		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 46, WHITE);
+		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 70, WHITE);
+		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 94, WHITE);
+		graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter", cx, this.height - 20, GRAY);
+		if (!error.isEmpty()) {
+			graphics.drawCenteredString(this.font, error, cx, this.height - 34, RED);
+		}
+	}
+
+	@Override
+	public void onClose() {
+		this.minecraft.setScreen(parent);
+	}
+
+	@Override
+	public boolean isPauseScreen() {
+		return false;
+	}
+}

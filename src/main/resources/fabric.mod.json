@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "autofarm",
+	"version": "${version}",
+	"name": "Auto Farm Sweep",
+	"description": "Va X secondes à gauche puis X secondes à droite en cassant les cultures visées. Menu: touche K, démarrer/arrêter: touche J.",
+	"authors": ["GHugo7"],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": ["fr.ghugo.autofarm.AutoFarmClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
