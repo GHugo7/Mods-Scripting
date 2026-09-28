@@ -37,7 +37,7 @@ désactive la pause automatique quand la fenêtre perd le focus. Les réglages s
 ## Installation
 
 1. Installer [Fabric Loader](https://fabricmc.net/use/) pour 1.21.11 et [Fabric API](https://modrinth.com/mod/fabric-api).
-2. Télécharger le `.jar` (onglet *Actions* du dépôt → dernier build → artefact `autofarm-mod`),
+2. Télécharger le `.jar` dans les [Releases](https://github.com/GHugo7/Mods-Scripting/releases) (une release par build),
    ou compiler avec `./gradlew build` (JDK 25 requis pour Gradle/Loom ; le mod reste compatible Java 21) : le jar est dans `build/libs/`.
 3. Mettre le jar dans le dossier `mods/`.
 
