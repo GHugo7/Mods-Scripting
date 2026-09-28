@@ -51,29 +51,26 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
 			b.setMessage(toggleLabel("Casse auto", AutoFarmConfig.breakBlocks));
 		}).tooltip(tip("Maintient le clic gauche pour casser le bloc que vous visez pendant les déplacements. NON = le mod se déplace seulement.")).bounds(cx - 100, y, 98, 20).build());
-		addRenderableWidget(Button.builder(toggleLabel("Que cultures", AutoFarmConfig.cropsOnly), b -> {
-			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
-			b.setMessage(toggleLabel("Que cultures", AutoFarmConfig.cropsOnly));
-		}).tooltip(tip("OUI = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne, cactus, bambou, melon, citrouille) : la terre labourée et les autres blocs ne sont jamais cassés. NON = casse n'importe quel bloc visé.")).bounds(cx + 2, y, 98, 20).build());
-		y += 22;
-		addRenderableWidget(Button.builder(toggleLabel("Que mûres", AutoFarmConfig.matureOnly), b -> {
-			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
-			b.setMessage(toggleLabel("Que mûres", AutoFarmConfig.matureOnly));
-		}).tooltip(tip("OUI = ignore les cultures qui n'ont pas fini de pousser (blé, carottes, patates, betteraves, verrues, cacao). NON = casse aussi les jeunes pousses.")).bounds(cx - 100, y, 98, 20).build());
 		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
 			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
 			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
 		}).tooltip(tip("Au captcha, affiche une notification Windows / Mac / Linux, même si Minecraft est en arrière-plan.")).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
+		addRenderableWidget(Button.builder(toggleLabel("Seulement cultures", AutoFarmConfig.cropsOnly), b -> {
+			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
+			b.setMessage(toggleLabel("Seulement cultures", AutoFarmConfig.cropsOnly));
+		}).tooltip(tip("OUI = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne, cactus, bambou, melon, citrouille) : la terre labourée et les autres blocs ne sont jamais cassés. NON = casse n'importe quel bloc visé.")).bounds(cx - 100, y, 200, 20).build());
+		y += 22;
+		addRenderableWidget(Button.builder(toggleLabel("Seulement mûres", AutoFarmConfig.matureOnly), b -> {
+			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
+			b.setMessage(toggleLabel("Seulement mûres", AutoFarmConfig.matureOnly));
+		}).tooltip(tip("OUI = ignore les cultures qui n'ont pas fini de pousser (blé, carottes, patates, betteraves, verrues, cacao). NON = casse aussi les jeunes pousses.")).bounds(cx - 100, y, 200, 20).build());
+		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Alarme", AutoFarmConfig.loudAlarm), b -> {
 			AutoFarmConfig.loudAlarm = !AutoFarmConfig.loudAlarm;
 			b.setMessage(toggleLabel("Alarme", AutoFarmConfig.loudAlarm));
-		}).tooltip(tip("Au captcha, joue une série de bips pendant environ 5 secondes. Réglez le volume avec le curseur ci-dessous.")).bounds(cx - 100, y, 98, 20).build());
-		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b ->
-				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
-		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(cx + 2, y, 98, 20).build());
-		y += 22;
-		addRenderableWidget(new AbstractSliderButton(cx - 100, y, 200, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
+		}).tooltip(tip("Au captcha, joue une série de bips pendant environ 5 secondes, au volume réglé à droite.")).bounds(cx - 100, y, 98, 20).build());
+		AbstractSliderButton volumeSlider = new AbstractSliderButton(cx + 2, y, 98, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
 			@Override
 			protected void updateMessage() {
 				setMessage(volumeLabel());
@@ -83,7 +80,9 @@ public class AutoFarmScreen extends Screen {
 			protected void applyValue() {
 				AutoFarmConfig.alarmVolume = this.value;
 			}
-		});
+		};
+		volumeSlider.setTooltip(tip("Volume des bips de l'alarme (indépendant du volume de Minecraft). Utilisez « Tester » pour l'essayer."));
+		addRenderableWidget(volumeSlider);
 		y += 26;
 		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
 		addRenderableWidget(Button.builder(startLabel, b -> {
@@ -95,13 +94,16 @@ public class AutoFarmScreen extends Screen {
 				this.minecraft.setScreen(null);
 				AutoFarmController.start(this.minecraft);
 			}
-		}).bounds(cx - 100, y, 98, 20).build());
+		}).bounds(cx - 100, y, 66, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Enregistrer"), b -> {
 			if (applyValues()) {
 				AutoFarmConfig.save();
 				onClose();
 			}
-		}).bounds(cx + 2, y, 98, 20).build());
+		}).bounds(cx - 32, y, 66, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Tester"), b ->
+				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
+		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(cx + 36, y, 64, 20).build());
 	}
 
 	private EditBox numberBox(int x, int y, String value, String label) {
@@ -147,7 +149,7 @@ public class AutoFarmScreen extends Screen {
 	}
 
 	private static Component volumeLabel() {
-		return Component.literal("Volume alarme : " + Math.round(AutoFarmConfig.alarmVolume * 100) + "%");
+		return Component.literal("Volume : " + Math.round(AutoFarmConfig.alarmVolume * 100) + "%");
 	}
 
 	private static Component toggleLabel(String name, boolean on) {

@@ -13,18 +13,19 @@ en boucle, tout en **tapant (cassant) les cultures** visées.
 Les touches sont modifiables dans *Options > Contrôles > Divers*.
 
 Dans le menu (passez la souris sur un bouton pour voir son explication) :
-- **Secondes à gauche / à droite** : durée de chaque côté (décimales acceptées, ex. `7.5`).
-- **Allers-retours** : nombre de cycles gauche+droite, `0` = infini.
-- **Casse auto** : maintient le clic gauche sur le bloc visé.
-- **Que cultures** : ne tape que blé, carottes, patates, betteraves, verrues, cacao,
-  canne à sucre, cactus, bambou, melons et citrouilles (évite de casser la terre labourée).
-- **Que mûres** : ignore les cultures pas encore arrivées à maturité.
-- **Arrêt si le chat dit** : si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête
-  et vous prévient. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
-- **Alarme** : série de bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas).
-- **Volume alarme** : curseur de 0 à 100 % (30 % par défaut). Utilisez « Tester l'alerte » pour régler.
-- **Notif PC** : notification Windows / macOS / Linux (`notify-send`).
-- **Tester** : déclenche l'alerte pour vérifier le son et la notification.
+
+| Réglage | Ancien nom | Ce qu'il fait |
+|---|---|---|
+| **Secondes à gauche / à droite** | — | Durée de chaque côté (décimales acceptées, ex. `7.5`). |
+| **Allers-retours** | Allers-retours (0 = ∞) | Nombre de cycles gauche + droite avant l'arrêt. `0` ou vide = sans fin. |
+| **Arrêt si le chat dit** | — | Si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête et vous prévient. Par défaut `/captcha start`. Vide = désactivé. Après le captcha, `J` pour reprendre. |
+| **Casse auto** | Casser / Casser les blocs visés | Maintient le clic gauche pour casser ce que vous visez pendant les déplacements. **NON** = le mod se déplace seulement. |
+| **Seulement cultures** | Cultures / Cultures uniquement | **OUI** = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne à sucre, cactus, bambou, melon, citrouille), jamais la terre labourée. **NON** = casse n'importe quel bloc visé. |
+| **Seulement mûres** | Mûres / Cultures mûres uniquement | **OUI** = ignore les cultures qui n'ont pas fini de pousser. **NON** = casse aussi les jeunes pousses. |
+| **Notif PC** | — | Au captcha, notification Windows / macOS / Linux, même si Minecraft est en arrière-plan. |
+| **Alarme** | — | Au captcha, bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas). |
+| **Volume** | Volume alarme | Volume des bips, de 0 à 100 % (30 % par défaut). |
+| **Tester** | Tester l'alerte | Déclenche l'alerte tout de suite pour vérifier le son et la notification. |
 
 Au captcha, un gros titre « CAPTCHA ! » s'affiche aussi en jeu et l'icône de Minecraft clignote dans la barre des tâches.
 
