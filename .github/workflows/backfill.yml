@@ -1,0 +1,57 @@
+name: backfill releases
+
+# Publie une release pour les builds 1 à 5, faits avant l'ajout des releases automatiques.
+on:
+  push:
+    paths:
+      - .github/workflows/backfill.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - build: 1
+            sha: de251be659a9aed678817305083a80f0d17577b0
+            title: Première version (gauche/droite + casse des cultures)
+          - build: 2
+            sha: 58ad8b5176530ada75dbfd0b11d72e2dcdfbb7b6
+            title: Build sur JDK 25
+          - build: 3
+            sha: d003c5d80b978ecd3a2a04269baf536a298f7fa6
+            title: Continue quand un menu (Échap) est ouvert
+          - build: 4
+            sha: cc25bce67dcb6ca02d28fec6973dd9bf2837ad88
+            title: Arrêt quand le captcha apparaît dans le chat
+          - build: 5
+            sha: 99bd52417b7c521d7971162ad8ee785aa248f5ca
+            title: Alarme forte, notification PC et bouton Tester
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build --no-daemon -Pversion=1.0.${{ matrix.build }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ matrix.build }}
+          name: Auto Farm 1.0.${{ matrix.build }}
+          target_commitish: ${{ matrix.sha }}
+          body: |
+            ${{ matrix.title }}
+
+            Build du commit ${{ matrix.sha }}.
+
+            Installation : Fabric Loader + Fabric API pour Minecraft 1.21.11, puis mettre le .jar dans `mods/`.
+          files: build/libs/*.jar
+          make_latest: false
