@@ -16,6 +16,7 @@ public class AutoFarmScreen extends Screen {
 	private EditBox leftBox;
 	private EditBox rightBox;
 	private EditBox cyclesBox;
+	private EditBox captchaBox;
 	private String error = "";
 
 	public AutoFarmScreen(Screen parent) {
@@ -26,31 +27,36 @@ public class AutoFarmScreen extends Screen {
 	@Override
 	protected void init() {
 		int cx = this.width / 2;
-		int y = 40;
+		int y = 36;
 
 		leftBox = numberBox(cx + 5, y, format(AutoFarmConfig.leftSeconds), "Secondes à gauche");
-		y += 24;
+		y += 22;
 		rightBox = numberBox(cx + 5, y, format(AutoFarmConfig.rightSeconds), "Secondes à droite");
-		y += 24;
+		y += 22;
 		cyclesBox = numberBox(cx + 5, y, String.valueOf(AutoFarmConfig.cycles), "Allers-retours");
 		cyclesBox.setFilter(s -> s.matches("\\d{0,5}"));
-		y += 30;
+		y += 22;
+		captchaBox = new EditBox(this.font, cx + 5, y, 95, 20, Component.literal("Texte du captcha"));
+		captchaBox.setMaxLength(100);
+		captchaBox.setValue(AutoFarmConfig.captchaText);
+		addRenderableWidget(captchaBox);
+		y += 26;
 
 		addRenderableWidget(Button.builder(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks), b -> {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
 			b.setMessage(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks));
 		}).bounds(cx - 100, y, 200, 20).build());
-		y += 24;
+		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly), b -> {
 			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
 			b.setMessage(toggleLabel("Cultures uniquement", AutoFarmConfig.cropsOnly));
 		}).bounds(cx - 100, y, 200, 20).build());
-		y += 24;
+		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly), b -> {
 			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
 			b.setMessage(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly));
 		}).bounds(cx - 100, y, 200, 20).build());
-		y += 32;
+		y += 26;
 
 		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
 		addRenderableWidget(Button.builder(startLabel, b -> {
@@ -92,6 +98,7 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.leftSeconds = left;
 			AutoFarmConfig.rightSeconds = right;
 			AutoFarmConfig.cycles = cycles;
+			AutoFarmConfig.captchaText = captchaBox.getValue().trim();
 			error = "";
 			return true;
 		} catch (NumberFormatException e) {
@@ -117,12 +124,13 @@ public class AutoFarmScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, partialTick);
 		int cx = this.width / 2;
 		graphics.drawCenteredString(this.font, this.title, cx, 15, WHITE);
-		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 46, WHITE);
-		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 70, WHITE);
-		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 94, WHITE);
-		graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter", cx, this.height - 20, GRAY);
+		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 42, WHITE);
+		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 64, WHITE);
+		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 86, WHITE);
+		graphics.drawString(this.font, "Arrêt si le chat dit :", cx - 100, 108, WHITE);
+		graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter  |  vide = pas d'arrêt", cx, this.height - 12, GRAY);
 		if (!error.isEmpty()) {
-			graphics.drawCenteredString(this.font, error, cx, this.height - 34, RED);
+			graphics.drawCenteredString(this.font, error, cx, this.height - 24, RED);
 		}
 	}
 

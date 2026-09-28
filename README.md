@@ -19,6 +19,8 @@ Dans le menu :
 - **Cultures uniquement** : ne tape que blé, carottes, patates, betteraves, verrues, cacao,
   canne à sucre, cactus, bambou, melons et citrouilles (évite de casser la terre labourée).
 - **Cultures mûres uniquement** : ignore les cultures pas encore arrivées à maturité.
+- **Arrêt si le chat dit** : si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête
+  et joue un son. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
 
 Visez les cultures (regard vers le bas/devant) avant de lancer. Le mod continue de tourner quand un menu est
 ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il s'arrête avec `J` ou si vous mourez.

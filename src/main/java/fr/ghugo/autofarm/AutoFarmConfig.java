@@ -25,6 +25,8 @@ public final class AutoFarmConfig {
 	public static boolean cropsOnly = true;
 	/** Ne casser que les cultures arrivées à maturité. */
 	public static boolean matureOnly = true;
+	/** Le mod s'arrête si un message du chat contient ce texte (vide = désactivé). */
+	public static String captchaText = "/captcha start";
 
 	private AutoFarmConfig() {
 	}
@@ -42,6 +44,7 @@ public final class AutoFarmConfig {
 			breakBlocks = Boolean.parseBoolean(p.getProperty("breakBlocks", String.valueOf(breakBlocks)));
 			cropsOnly = Boolean.parseBoolean(p.getProperty("cropsOnly", String.valueOf(cropsOnly)));
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
+			captchaText = p.getProperty("captchaText", captchaText);
 		} catch (IOException | NumberFormatException e) {
 			AutoFarmClient.LOGGER.warn("Impossible de lire {}", FILE, e);
 		}
@@ -55,6 +58,7 @@ public final class AutoFarmConfig {
 		p.setProperty("breakBlocks", String.valueOf(breakBlocks));
 		p.setProperty("cropsOnly", String.valueOf(cropsOnly));
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
+		p.setProperty("captchaText", captchaText);
 		try {
 			Files.createDirectories(FILE.getParent());
 			try (Writer writer = Files.newBufferedWriter(FILE)) {

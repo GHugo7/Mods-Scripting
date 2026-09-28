@@ -1,8 +1,11 @@
 package fr.ghugo.autofarm;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BambooStalkBlock;
@@ -15,6 +18,8 @@ import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+
+import java.util.Locale;
 
 /** Machine à états : gauche pendant X s, droite pendant Y s, en cassant les cultures visées. */
 public final class AutoFarmController {
@@ -59,6 +64,19 @@ public final class AutoFarmController {
 		releaseKeys(mc);
 		if (message != null) {
 			mc.gui.getChat().addMessage(Component.literal("§e[Auto Farm] " + message));
+		}
+	}
+
+	/** Arrête le mod si le message reçu contient le texte du captcha. */
+	public static void onChatMessage(Minecraft mc, Component message) {
+		String trigger = AutoFarmConfig.captchaText;
+		if (!running || trigger.isEmpty()) {
+			return;
+		}
+		String text = ChatFormatting.stripFormatting(message.getString());
+		if (text != null && text.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT))) {
+			stop(mc, "Arrêté : captcha détecté. Faites le captcha puis appuyez sur J pour reprendre.");
+			mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.0F));
 		}
 	}
 
