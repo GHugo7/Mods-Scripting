@@ -65,7 +65,7 @@ public final class AutoFarmController {
 		ticksLeftInPhase = toTicks(AutoFarmConfig.leftSeconds);
 		tripsDone = 0;
 		loopsDone = 0;
-		chat(mc, "§a[Auto Farm] Démarré (H : pause, J : arrêter).");
+		chat(mc, "§a[Auto Farm] Démarré (" + AutoFarmClient.pauseKey() + " : pause, " + AutoFarmClient.toggleKey() + " : arrêter).");
 	}
 
 	public static void stop(Minecraft mc, String message) {
@@ -102,11 +102,11 @@ public final class AutoFarmController {
 
 	public static void togglePause(Minecraft mc) {
 		if (!running) {
-			chat(mc, "§7[Auto Farm] Rien à mettre en pause : appuyez sur J pour démarrer.");
+			chat(mc, "§7[Auto Farm] Rien à mettre en pause : appuyez sur " + AutoFarmClient.toggleKey() + " pour démarrer.");
 		} else if (paused) {
 			resume(mc);
 		} else {
-			pause(mc, "En pause (H pour reprendre).");
+			pause(mc, "En pause (" + AutoFarmClient.pauseKey() + " pour reprendre).");
 		}
 	}
 
@@ -118,7 +118,7 @@ public final class AutoFarmController {
 		}
 		String text = ChatFormatting.stripFormatting(message.getString());
 		if (text != null && text.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT))) {
-			pause(mc, "En pause : captcha détecté. Faites le captcha puis appuyez sur H pour reprendre.");
+			pause(mc, "En pause : captcha détecté. Faites le captcha puis appuyez sur " + AutoFarmClient.pauseKey() + " pour reprendre.");
 			AutoFarmAlert.trigger(mc, "Captcha détecté, le farm est en pause.");
 		}
 	}
@@ -140,7 +140,7 @@ public final class AutoFarmController {
 		if (paused) {
 			releaseKeys(mc);
 			if (pausedTicks++ % 40 == 0) {
-				mc.gui.setOverlayMessage(Component.literal("§eAuto Farm en pause §7(" + progress() + ") §f— H pour reprendre"), false);
+				mc.gui.setOverlayMessage(Component.literal("§eAuto Farm en pause §7(" + progress() + ") §f— " + AutoFarmClient.pauseKey() + " pour reprendre"), false);
 			}
 			return;
 		}

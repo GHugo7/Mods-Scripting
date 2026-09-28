@@ -3,7 +3,7 @@
 	"id": "autofarm",
 	"version": "${version}",
 	"name": "Auto Farm Sweep",
-	"description": "Va X secondes à gauche puis X secondes à droite en cassant les cultures visées. Menu: touche K, démarrer/arrêter: touche J.",
+	"description": "Va X secondes à gauche puis X secondes à droite en cassant les cultures visées. Touches par défaut : K menu, J démarrer/arrêter, H pause (modifiables dans Contrôles).",
 	"authors": ["GHugo7"],
 	"license": "MIT",
 	"environment": "client",

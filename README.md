@@ -11,7 +11,7 @@ en boucle, tout en **tapant (cassant) les cultures** visées.
 | `J` | Démarre depuis le début / arrête complètement |
 | `H` | Pause / reprendre (la progression est gardée) |
 
-Les touches sont modifiables dans *Options > Contrôles > Divers*.
+Ce sont les touches par défaut : elles sont modifiables dans *Options > Contrôles > Divers*, et les messages du mod affichent toujours la touche choisie.
 
 ### Déroulement
 

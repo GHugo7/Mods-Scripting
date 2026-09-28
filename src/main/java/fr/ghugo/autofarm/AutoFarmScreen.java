@@ -8,7 +8,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-/** Interface de configuration (touche K). */
+/** Interface de configuration (touche du menu, K par défaut). */
 public class AutoFarmScreen extends Screen {
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int GRAY = 0xFFA0A0A0;
@@ -120,7 +120,7 @@ public class AutoFarmScreen extends Screen {
 				this.minecraft.setScreen(null);
 				AutoFarmController.start(this.minecraft);
 			}
-		}).tooltip(tip("Démarre depuis le début, ou arrête complètement (la progression est perdue). Touche J.")).bounds(left, y, 100, 20).build());
+		}).tooltip(tip("Démarre depuis le début, ou arrête complètement (la progression est perdue). Touche " + AutoFarmClient.toggleKey() + ".")).bounds(left, y, 100, 20).build());
 		Button pauseButton = addRenderableWidget(Button.builder(Component.literal(paused ? "§aReprendre" : "§ePause"), b -> {
 			if (AutoFarmController.isPaused()) {
 				if (!applyValues()) {
@@ -130,10 +130,10 @@ public class AutoFarmScreen extends Screen {
 				this.minecraft.setScreen(null);
 				AutoFarmController.resume(this.minecraft);
 			} else {
-				AutoFarmController.pause(this.minecraft, "En pause (H pour reprendre).");
+				AutoFarmController.pause(this.minecraft, "En pause (" + AutoFarmClient.pauseKey() + " pour reprendre).");
 				this.minecraft.setScreen(null);
 			}
-		}).tooltip(tip("Met en pause sans perdre la progression, puis reprend exactement au même endroit. Touche H.")).bounds(left + 103, y, 100, 20).build());
+		}).tooltip(tip("Met en pause sans perdre la progression, puis reprend exactement au même endroit. Touche " + AutoFarmClient.pauseKey() + ".")).bounds(left + 103, y, 100, 20).build());
 		pauseButton.active = running;
 		addRenderableWidget(Button.builder(Component.literal("Enregistrer"), b -> {
 			if (applyValues()) {
@@ -216,7 +216,7 @@ public class AutoFarmScreen extends Screen {
 		graphics.drawString(this.font, "Attente après (s) :", left, 152, WHITE);
 		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, "K : menu  |  J : démarrer/arrêter  |  H : pause  |  survolez pour l'aide", cx, 202, GRAY);
+			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 202, GRAY);
 		} else {
 			graphics.drawCenteredString(this.font, error, cx, 202, RED);
 		}

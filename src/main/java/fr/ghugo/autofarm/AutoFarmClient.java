@@ -11,12 +11,34 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 public class AutoFarmClient implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("autofarm");
 
 	private static KeyMapping openMenuKey;
 	private static KeyMapping toggleKey;
 	private static KeyMapping pauseKey;
+
+	/** Nom de la touche actuellement configurée (tient compte des changements dans Options > Contrôles). */
+	public static String menuKey() {
+		return keyName(openMenuKey);
+	}
+
+	public static String toggleKey() {
+		return keyName(toggleKey);
+	}
+
+	public static String pauseKey() {
+		return keyName(pauseKey);
+	}
+
+	private static String keyName(KeyMapping key) {
+		if (key == null || key.isUnbound()) {
+			return "(aucune touche)";
+		}
+		return key.getTranslatedKeyMessage().getString().toUpperCase(Locale.ROOT);
+	}
 
 	@Override
 	public void onInitializeClient() {
