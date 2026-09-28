@@ -12,13 +12,13 @@ en boucle, tout en **tapant (cassant) les cultures** visées.
 
 Les touches sont modifiables dans *Options > Contrôles > Divers*.
 
-Dans le menu :
+Dans le menu (passez la souris sur un bouton pour voir son explication) :
 - **Secondes à gauche / à droite** : durée de chaque côté (décimales acceptées, ex. `7.5`).
 - **Allers-retours** : nombre de cycles gauche+droite, `0` = infini.
-- **Casser les blocs visés** : maintient le clic gauche sur le bloc visé.
-- **Cultures uniquement** : ne tape que blé, carottes, patates, betteraves, verrues, cacao,
+- **Casse auto** : maintient le clic gauche sur le bloc visé.
+- **Que cultures** : ne tape que blé, carottes, patates, betteraves, verrues, cacao,
   canne à sucre, cactus, bambou, melons et citrouilles (évite de casser la terre labourée).
-- **Cultures mûres uniquement** : ignore les cultures pas encore arrivées à maturité.
+- **Que mûres** : ignore les cultures pas encore arrivées à maturité.
 - **Arrêt si le chat dit** : si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête
   et vous prévient. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
 - **Alarme** : série de bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas).

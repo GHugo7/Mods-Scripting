@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -37,38 +38,40 @@ public class AutoFarmScreen extends Screen {
 		cyclesBox = numberBox(cx + 5, y, String.valueOf(AutoFarmConfig.cycles), "Allers-retours");
 		cyclesBox.setFilter(s -> s.matches("\\d{0,5}"));
 		cyclesBox.setHint(Component.literal("0 = infini"));
+		cyclesBox.setTooltip(tip("Nombre d'allers-retours (gauche puis droite) avant de s'arrêter. 0 ou vide = sans fin."));
 		y += 22;
 		captchaBox = new EditBox(this.font, cx + 5, y, 95, 20, Component.literal("Texte du captcha"));
 		captchaBox.setMaxLength(100);
 		captchaBox.setValue(AutoFarmConfig.captchaText);
+		captchaBox.setTooltip(tip("Si un message du chat contient ce texte, le mod s'arrête et vous prévient. Vide = désactivé."));
 		addRenderableWidget(captchaBox);
 		y += 24;
 
-		addRenderableWidget(Button.builder(toggleLabel("Casser", AutoFarmConfig.breakBlocks), b -> {
+		addRenderableWidget(Button.builder(toggleLabel("Casse auto", AutoFarmConfig.breakBlocks), b -> {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
-			b.setMessage(toggleLabel("Casser", AutoFarmConfig.breakBlocks));
-		}).bounds(cx - 100, y, 98, 20).build());
-		addRenderableWidget(Button.builder(toggleLabel("Cultures", AutoFarmConfig.cropsOnly), b -> {
+			b.setMessage(toggleLabel("Casse auto", AutoFarmConfig.breakBlocks));
+		}).tooltip(tip("Maintient le clic gauche pour casser le bloc que vous visez pendant les déplacements. NON = le mod se déplace seulement.")).bounds(cx - 100, y, 98, 20).build());
+		addRenderableWidget(Button.builder(toggleLabel("Que cultures", AutoFarmConfig.cropsOnly), b -> {
 			AutoFarmConfig.cropsOnly = !AutoFarmConfig.cropsOnly;
-			b.setMessage(toggleLabel("Cultures", AutoFarmConfig.cropsOnly));
-		}).bounds(cx + 2, y, 98, 20).build());
+			b.setMessage(toggleLabel("Que cultures", AutoFarmConfig.cropsOnly));
+		}).tooltip(tip("OUI = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne, cactus, bambou, melon, citrouille) : la terre labourée et les autres blocs ne sont jamais cassés. NON = casse n'importe quel bloc visé.")).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
-		addRenderableWidget(Button.builder(toggleLabel("Mûres", AutoFarmConfig.matureOnly), b -> {
+		addRenderableWidget(Button.builder(toggleLabel("Que mûres", AutoFarmConfig.matureOnly), b -> {
 			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
-			b.setMessage(toggleLabel("Mûres", AutoFarmConfig.matureOnly));
-		}).bounds(cx - 100, y, 98, 20).build());
+			b.setMessage(toggleLabel("Que mûres", AutoFarmConfig.matureOnly));
+		}).tooltip(tip("OUI = ignore les cultures qui n'ont pas fini de pousser (blé, carottes, patates, betteraves, verrues, cacao). NON = casse aussi les jeunes pousses.")).bounds(cx - 100, y, 98, 20).build());
 		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
 			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
 			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
-		}).bounds(cx + 2, y, 98, 20).build());
+		}).tooltip(tip("Au captcha, affiche une notification Windows / Mac / Linux, même si Minecraft est en arrière-plan.")).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
 		addRenderableWidget(Button.builder(toggleLabel("Alarme", AutoFarmConfig.loudAlarm), b -> {
 			AutoFarmConfig.loudAlarm = !AutoFarmConfig.loudAlarm;
 			b.setMessage(toggleLabel("Alarme", AutoFarmConfig.loudAlarm));
-		}).bounds(cx - 100, y, 98, 20).build());
+		}).tooltip(tip("Au captcha, joue une série de bips pendant environ 5 secondes. Réglez le volume avec le curseur ci-dessous.")).bounds(cx - 100, y, 98, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b ->
 				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
-		).bounds(cx + 2, y, 98, 20).build());
+		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(cx + 2, y, 98, 20).build());
 		y += 22;
 		addRenderableWidget(new AbstractSliderButton(cx - 100, y, 200, 20, volumeLabel(), AutoFarmConfig.alarmVolume) {
 			@Override
@@ -139,6 +142,10 @@ public class AutoFarmScreen extends Screen {
 		return d == Math.rint(d) ? String.valueOf((long) d) : String.valueOf(d);
 	}
 
+	private static Tooltip tip(String text) {
+		return Tooltip.create(Component.literal(text));
+	}
+
 	private static Component volumeLabel() {
 		return Component.literal("Volume alarme : " + Math.round(AutoFarmConfig.alarmVolume * 100) + "%");
 	}
@@ -153,7 +160,7 @@ public class AutoFarmScreen extends Screen {
 		int cx = this.width / 2;
 		graphics.drawCenteredString(this.font, this.title, cx, 6, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter", cx, 18, GRAY);
+			graphics.drawCenteredString(this.font, "J : démarrer / arrêter  |  survolez pour l'aide", cx, 18, GRAY);
 		} else {
 			graphics.drawCenteredString(this.font, error, cx, 18, RED);
 		}

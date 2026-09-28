@@ -37,7 +37,7 @@ jobs:
             rm -rf build/libs
             ./gradlew build --no-daemon -Pversion="1.0.$n"
             gh release create "build-$n" build/libs/*.jar \
-              --target "$sha" \
+              --target "${{ github.sha }}" \
               --title "Auto Farm 1.0.$n" \
               --latest=false \
               --notes "$title
