@@ -36,6 +36,7 @@ public class AutoFarmScreen extends Screen {
 		y += 22;
 		cyclesBox = numberBox(cx + 5, y, String.valueOf(AutoFarmConfig.cycles), "Allers-retours");
 		cyclesBox.setFilter(s -> s.matches("\\d{0,5}"));
+		cyclesBox.setHint(Component.literal("0 = infini"));
 		y += 22;
 		captchaBox = new EditBox(this.font, cx + 5, y, 95, 20, Component.literal("Texte du captcha"));
 		captchaBox.setMaxLength(100);
@@ -158,7 +159,7 @@ public class AutoFarmScreen extends Screen {
 		}
 		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 38, WHITE);
 		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 60, WHITE);
-		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 82, WHITE);
+		graphics.drawString(this.font, "Allers-retours :", cx - 100, 82, WHITE);
 		graphics.drawString(this.font, "Arrêt si le chat dit :", cx - 100, 104, WHITE);
 	}
 
