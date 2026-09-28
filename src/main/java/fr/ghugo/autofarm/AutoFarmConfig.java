@@ -27,6 +27,10 @@ public final class AutoFarmConfig {
 	public static boolean matureOnly = true;
 	/** Le mod s'arrête si un message du chat contient ce texte (vide = désactivé). */
 	public static String captchaText = "/captcha start";
+	/** Alarme sonore forte au captcha. */
+	public static boolean loudAlarm = true;
+	/** Notification Windows/macOS/Linux au captcha. */
+	public static boolean desktopNotification = true;
 
 	private AutoFarmConfig() {
 	}
@@ -45,6 +49,8 @@ public final class AutoFarmConfig {
 			cropsOnly = Boolean.parseBoolean(p.getProperty("cropsOnly", String.valueOf(cropsOnly)));
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
 			captchaText = p.getProperty("captchaText", captchaText);
+			loudAlarm = Boolean.parseBoolean(p.getProperty("loudAlarm", String.valueOf(loudAlarm)));
+			desktopNotification = Boolean.parseBoolean(p.getProperty("desktopNotification", String.valueOf(desktopNotification)));
 		} catch (IOException | NumberFormatException e) {
 			AutoFarmClient.LOGGER.warn("Impossible de lire {}", FILE, e);
 		}
@@ -59,6 +65,8 @@ public final class AutoFarmConfig {
 		p.setProperty("cropsOnly", String.valueOf(cropsOnly));
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
 		p.setProperty("captchaText", captchaText);
+		p.setProperty("loudAlarm", String.valueOf(loudAlarm));
+		p.setProperty("desktopNotification", String.valueOf(desktopNotification));
 		try {
 			Files.createDirectories(FILE.getParent());
 			try (Writer writer = Files.newBufferedWriter(FILE)) {

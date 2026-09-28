@@ -27,7 +27,7 @@ public class AutoFarmScreen extends Screen {
 	@Override
 	protected void init() {
 		int cx = this.width / 2;
-		int y = 36;
+		int y = 32;
 
 		leftBox = numberBox(cx + 5, y, format(AutoFarmConfig.leftSeconds), "Secondes à gauche");
 		y += 22;
@@ -40,7 +40,7 @@ public class AutoFarmScreen extends Screen {
 		captchaBox.setMaxLength(100);
 		captchaBox.setValue(AutoFarmConfig.captchaText);
 		addRenderableWidget(captchaBox);
-		y += 26;
+		y += 24;
 
 		addRenderableWidget(Button.builder(toggleLabel("Casser les blocs visés", AutoFarmConfig.breakBlocks), b -> {
 			AutoFarmConfig.breakBlocks = !AutoFarmConfig.breakBlocks;
@@ -56,8 +56,19 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.matureOnly = !AutoFarmConfig.matureOnly;
 			b.setMessage(toggleLabel("Cultures mûres uniquement", AutoFarmConfig.matureOnly));
 		}).bounds(cx - 100, y, 200, 20).build());
+		y += 22;
+		addRenderableWidget(Button.builder(toggleLabel("Alarme", AutoFarmConfig.loudAlarm), b -> {
+			AutoFarmConfig.loudAlarm = !AutoFarmConfig.loudAlarm;
+			b.setMessage(toggleLabel("Alarme", AutoFarmConfig.loudAlarm));
+		}).bounds(cx - 100, y, 72, 20).build());
+		addRenderableWidget(Button.builder(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification), b -> {
+			AutoFarmConfig.desktopNotification = !AutoFarmConfig.desktopNotification;
+			b.setMessage(toggleLabel("Notif PC", AutoFarmConfig.desktopNotification));
+		}).bounds(cx - 26, y, 80, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Tester"), b ->
+				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
+		).bounds(cx + 56, y, 44, 20).build());
 		y += 26;
-
 		Component startLabel = Component.literal(AutoFarmController.isRunning() ? "§cArrêter" : "§aDémarrer");
 		addRenderableWidget(Button.builder(startLabel, b -> {
 			if (AutoFarmController.isRunning()) {
@@ -123,15 +134,16 @@ public class AutoFarmScreen extends Screen {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		super.render(graphics, mouseX, mouseY, partialTick);
 		int cx = this.width / 2;
-		graphics.drawCenteredString(this.font, this.title, cx, 15, WHITE);
-		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 42, WHITE);
-		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 64, WHITE);
-		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 86, WHITE);
-		graphics.drawString(this.font, "Arrêt si le chat dit :", cx - 100, 108, WHITE);
-		graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter  |  vide = pas d'arrêt", cx, this.height - 12, GRAY);
-		if (!error.isEmpty()) {
-			graphics.drawCenteredString(this.font, error, cx, this.height - 24, RED);
+		graphics.drawCenteredString(this.font, this.title, cx, 6, WHITE);
+		if (error.isEmpty()) {
+			graphics.drawCenteredString(this.font, "K : ce menu  |  J : démarrer / arrêter", cx, 18, GRAY);
+		} else {
+			graphics.drawCenteredString(this.font, error, cx, 18, RED);
 		}
+		graphics.drawString(this.font, "Secondes à gauche :", cx - 100, 38, WHITE);
+		graphics.drawString(this.font, "Secondes à droite :", cx - 100, 60, WHITE);
+		graphics.drawString(this.font, "Allers-retours (0 = ∞) :", cx - 100, 82, WHITE);
+		graphics.drawString(this.font, "Arrêt si le chat dit :", cx - 100, 104, WHITE);
 	}
 
 	@Override

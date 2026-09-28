@@ -2,10 +2,8 @@ package fr.ghugo.autofarm;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BambooStalkBlock;
@@ -76,7 +74,7 @@ public final class AutoFarmController {
 		String text = ChatFormatting.stripFormatting(message.getString());
 		if (text != null && text.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT))) {
 			stop(mc, "Arrêté : captcha détecté. Faites le captcha puis appuyez sur J pour reprendre.");
-			mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.0F));
+			AutoFarmAlert.trigger(mc, "Captcha détecté, le farm est arrêté.");
 		}
 	}
 

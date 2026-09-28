@@ -20,7 +20,13 @@ Dans le menu :
   canne à sucre, cactus, bambou, melons et citrouilles (évite de casser la terre labourée).
 - **Cultures mûres uniquement** : ignore les cultures pas encore arrivées à maturité.
 - **Arrêt si le chat dit** : si un message du chat contient ce texte (majuscules ignorées), le mod s'arrête
-  et joue un son. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
+  et vous prévient. Par défaut `/captcha start`. Laisser vide pour désactiver. Après le captcha, `J` pour reprendre.
+- **Alarme** : série de bips forts pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas,
+  seul le volume du PC compte).
+- **Notif PC** : notification Windows / macOS / Linux (`notify-send`).
+- **Tester** : déclenche l'alerte pour vérifier le son et la notification.
+
+Au captcha, un gros titre « CAPTCHA ! » s'affiche aussi en jeu et l'icône de Minecraft clignote dans la barre des tâches.
 
 Visez les cultures (regard vers le bas/devant) avant de lancer. Le mod continue de tourner quand un menu est
 ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il s'arrête avec `J` ou si vous mourez.
