@@ -23,6 +23,7 @@ public class AutoFarmScreen extends Screen {
 	private EditBox beforeBox;
 	private EditBox waitBox;
 	private EditBox captchaBox;
+	private EditBox randomBox;
 	private String error = "";
 
 	public AutoFarmScreen(Screen parent) {
@@ -108,6 +109,9 @@ public class AutoFarmScreen extends Screen {
 				AutoFarmConfig.alarmVolume = this.value;
 			}
 		};
+		randomBox = numberBox(cx + 110, y + 22, String.valueOf(AutoFarmConfig.delayRandomPercent), "Hasard délais");
+		randomBox.setFilter(s -> s.matches("\\d{0,3}"));
+		randomBox.setTooltip(tip("Variation aléatoire du délai avant commande et de l'attente après, pour ne jamais avoir exactement le même temps. Ex. 20 % sur 2 s = entre 1,6 et 2,4 s. 0 = délais fixes."));
 		volumeSlider.setTooltip(tip("Volume des bips de l'alarme (indépendant du volume de Minecraft). Utilisez « Tester » pour l'essayer."));
 		addRenderableWidget(volumeSlider);
 
@@ -177,6 +181,7 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.loops = loops;
 			AutoFarmConfig.endCommand = commandBox.getValue().trim();
 			AutoFarmConfig.beforeCommandSeconds = before;
+			AutoFarmConfig.delayRandomPercent = randomBox.getValue().isEmpty() ? 0 : Math.min(100, Integer.parseInt(randomBox.getValue()));
 			AutoFarmConfig.endWaitSeconds = wait;
 			AutoFarmConfig.captchaText = captchaBox.getValue().trim();
 			error = "";
@@ -222,6 +227,7 @@ public class AutoFarmScreen extends Screen {
 		graphics.drawString(this.font, "Délai avant (s) :", left, 152, WHITE);
 		graphics.drawString(this.font, "Attente après (s) :", left, 174, WHITE);
 		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
+		graphics.drawString(this.font, "Hasard délais (%) :", cx + 5, 152, WHITE);
 		if (error.isEmpty()) {
 			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 224, GRAY);
 		} else {

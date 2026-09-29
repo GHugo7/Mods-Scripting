@@ -18,6 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Machine à états : dans une boucle, N allers-retours (gauche pendant X s, droite pendant Y s) en cassant les
@@ -35,6 +36,7 @@ public final class AutoFarmController {
 	/** Boucles terminées. */
 	private static int loopsDone;
 	private static int pausedTicks;
+	private static final Random RANDOM = new Random();
 
 	private AutoFarmController() {
 	}
@@ -186,7 +188,7 @@ public final class AutoFarmController {
 				// Fin des allers-retours : délai avant la commande, s'il y a une commande.
 				tripsDone = 0;
 				if (hasEndCommand() && AutoFarmConfig.beforeCommandSeconds > 0) {
-					setPhase(Phase.BEFORE_COMMAND, AutoFarmConfig.beforeCommandSeconds);
+					setPhase(Phase.BEFORE_COMMAND, randomized(AutoFarmConfig.beforeCommandSeconds));
 				} else {
 					return finishLoop(mc);
 				}
@@ -208,7 +210,7 @@ public final class AutoFarmController {
 			return false;
 		}
 		if (sent && AutoFarmConfig.endWaitSeconds > 0) {
-			setPhase(Phase.WAIT, AutoFarmConfig.endWaitSeconds);
+			setPhase(Phase.WAIT, randomized(AutoFarmConfig.endWaitSeconds));
 		} else {
 			setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
 		}
@@ -222,6 +224,12 @@ public final class AutoFarmController {
 			}
 		}
 		return false;
+	}
+
+	/** Applique la variation aléatoire configurée : ex. 20 % sur 3 s donne entre 2,4 et 3,6 s. */
+	private static double randomized(double seconds) {
+		double spread = AutoFarmConfig.delayRandomPercent / 100.0;
+		return Math.max(0.0, seconds * (1.0 + spread * (RANDOM.nextDouble() * 2.0 - 1.0)));
 	}
 
 	private static void setPhase(Phase next, double seconds) {

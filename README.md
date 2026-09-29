@@ -33,6 +33,7 @@ Passez la souris sur un bouton ou une case pour voir son explication.
 | **Commande de fin** | — | Commande envoyée à la fin de chaque boucle (ex. `/home farm`). Plusieurs : séparez par `;`. Vide = aucune. |
 | **Délai avant (s)** | — | Temps où le joueur reste immobile à la fin des allers-retours, avant d'envoyer la commande (2 s par défaut). Plus naturel qu'une téléportation instantanée. Ignoré s'il n'y a pas de commande. |
 | **Attente après (s)** | — | Temps d'attente après la commande de fin avant de repartir (ex. le temps de la téléportation). |
+| **Hasard délais (%)** | — | Variation aléatoire du *Délai avant* et de l'*Attente après* (20 % par défaut) : 20 % sur 2 s donne entre 1,6 et 2,4 s. 0 = délais fixes. Les durées gauche/droite ne sont pas modifiées, pour ne pas décaler le joueur dans le champ. |
 | **Texte captcha** | Arrêt si le chat dit | Si un message du chat contient ce texte (majuscules ignorées), le mod se **met en pause en gardant sa progression** et vous prévient. Par défaut `/captcha start`. Vide = désactivé. Après le captcha, `H` pour reprendre. |
 | **Casse auto** | Casser / Casser les blocs visés | Maintient le clic gauche pour casser ce que vous visez pendant les déplacements. **NON** = le mod se déplace seulement. |
 | **Seulement cultures** | Cultures / Cultures uniquement | **OUI** = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne à sucre, cactus, bambou, melon, citrouille), jamais la terre labourée. **NON** = casse n'importe quel bloc visé. |

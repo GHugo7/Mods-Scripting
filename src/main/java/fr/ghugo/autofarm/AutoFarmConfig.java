@@ -25,6 +25,8 @@ public final class AutoFarmConfig {
 	public static String endCommand = "";
 	/** Délai (secondes) à l'arrêt avant d'envoyer la commande de fin de boucle. */
 	public static double beforeCommandSeconds = 2.0;
+	/** Variation aléatoire (en %) appliquée au délai avant commande et à l'attente après (0 = fixe). */
+	public static int delayRandomPercent = 20;
 	/** Attente (secondes) après la commande de fin de boucle, avant de repartir. */
 	public static double endWaitSeconds = 3.0;
 	/** Casser le bloc visé pendant le déplacement. */
@@ -58,6 +60,7 @@ public final class AutoFarmConfig {
 			loops = Math.max(0, Integer.parseInt(p.getProperty("loops", String.valueOf(loops))));
 			endCommand = p.getProperty("endCommand", endCommand);
 			beforeCommandSeconds = Math.max(0.0, Double.parseDouble(p.getProperty("beforeCommandSeconds", String.valueOf(beforeCommandSeconds))));
+			delayRandomPercent = Math.clamp(Integer.parseInt(p.getProperty("delayRandomPercent", String.valueOf(delayRandomPercent))), 0, 100);
 			endWaitSeconds = Math.max(0.0, Double.parseDouble(p.getProperty("endWaitSeconds", String.valueOf(endWaitSeconds))));
 			breakBlocks = Boolean.parseBoolean(p.getProperty("breakBlocks", String.valueOf(breakBlocks)));
 			cropsOnly = Boolean.parseBoolean(p.getProperty("cropsOnly", String.valueOf(cropsOnly)));
@@ -79,6 +82,7 @@ public final class AutoFarmConfig {
 		p.setProperty("loops", String.valueOf(loops));
 		p.setProperty("endCommand", endCommand);
 		p.setProperty("beforeCommandSeconds", String.valueOf(beforeCommandSeconds));
+		p.setProperty("delayRandomPercent", String.valueOf(delayRandomPercent));
 		p.setProperty("endWaitSeconds", String.valueOf(endWaitSeconds));
 		p.setProperty("breakBlocks", String.valueOf(breakBlocks));
 		p.setProperty("cropsOnly", String.valueOf(cropsOnly));
