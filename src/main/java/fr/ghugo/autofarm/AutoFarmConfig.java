@@ -23,6 +23,8 @@ public final class AutoFarmConfig {
 	public static int loops = 0;
 	/** Commande(s) envoyée(s) à la fin de chaque boucle, séparées par « ; » (vide = aucune). */
 	public static String endCommand = "";
+	/** Délai (secondes) à l'arrêt avant d'envoyer la commande de fin de boucle. */
+	public static double beforeCommandSeconds = 2.0;
 	/** Attente (secondes) après la commande de fin de boucle, avant de repartir. */
 	public static double endWaitSeconds = 3.0;
 	/** Casser le bloc visé pendant le déplacement. */
@@ -55,6 +57,7 @@ public final class AutoFarmConfig {
 			trips = Math.max(1, Integer.parseInt(p.getProperty("trips", String.valueOf(trips))));
 			loops = Math.max(0, Integer.parseInt(p.getProperty("loops", String.valueOf(loops))));
 			endCommand = p.getProperty("endCommand", endCommand);
+			beforeCommandSeconds = Math.max(0.0, Double.parseDouble(p.getProperty("beforeCommandSeconds", String.valueOf(beforeCommandSeconds))));
 			endWaitSeconds = Math.max(0.0, Double.parseDouble(p.getProperty("endWaitSeconds", String.valueOf(endWaitSeconds))));
 			breakBlocks = Boolean.parseBoolean(p.getProperty("breakBlocks", String.valueOf(breakBlocks)));
 			cropsOnly = Boolean.parseBoolean(p.getProperty("cropsOnly", String.valueOf(cropsOnly)));
@@ -75,6 +78,7 @@ public final class AutoFarmConfig {
 		p.setProperty("trips", String.valueOf(trips));
 		p.setProperty("loops", String.valueOf(loops));
 		p.setProperty("endCommand", endCommand);
+		p.setProperty("beforeCommandSeconds", String.valueOf(beforeCommandSeconds));
 		p.setProperty("endWaitSeconds", String.valueOf(endWaitSeconds));
 		p.setProperty("breakBlocks", String.valueOf(breakBlocks));
 		p.setProperty("cropsOnly", String.valueOf(cropsOnly));

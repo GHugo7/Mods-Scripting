@@ -24,7 +24,7 @@ import java.util.Locale;
  * cultures visées, puis commande de fin de boucle et attente, et on recommence selon le nombre de boucles.
  */
 public final class AutoFarmController {
-	private enum Phase { LEFT, RIGHT, WAIT }
+	private enum Phase { LEFT, RIGHT, BEFORE_COMMAND, WAIT }
 
 	private static boolean running;
 	private static boolean paused;
@@ -149,7 +149,7 @@ public final class AutoFarmController {
 			return;
 		}
 
-		boolean moving = phase != Phase.WAIT;
+		boolean moving = phase == Phase.LEFT || phase == Phase.RIGHT;
 		mc.options.keyLeft.setDown(phase == Phase.LEFT);
 		mc.options.keyRight.setDown(phase == Phase.RIGHT);
 
@@ -163,6 +163,7 @@ public final class AutoFarmController {
 			String what = switch (phase) {
 				case LEFT -> "← Gauche";
 				case RIGHT -> "Droite →";
+				case BEFORE_COMMAND -> "Avant commande";
 				case WAIT -> "Attente";
 			};
 			mc.gui.setOverlayMessage(Component.literal("§6Auto Farm §f" + what + " §7"
@@ -182,23 +183,45 @@ public final class AutoFarmController {
 					setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
 					break;
 				}
-				// Fin de la boucle.
-				loopsDone++;
+				// Fin des allers-retours : délai avant la commande, s'il y a une commande.
 				tripsDone = 0;
-				boolean sent = sendEndCommand(mc);
-				if (AutoFarmConfig.loops > 0 && loopsDone >= AutoFarmConfig.loops) {
-					stop(mc, "Terminé (" + loopsDone + " boucle(s) de " + AutoFarmConfig.trips + " aller(s)-retour(s)).");
-					return false;
-				}
-				if (sent && AutoFarmConfig.endWaitSeconds > 0) {
-					setPhase(Phase.WAIT, AutoFarmConfig.endWaitSeconds);
+				if (hasEndCommand() && AutoFarmConfig.beforeCommandSeconds > 0) {
+					setPhase(Phase.BEFORE_COMMAND, AutoFarmConfig.beforeCommandSeconds);
 				} else {
-					setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
+					return finishLoop(mc);
 				}
+			}
+			case BEFORE_COMMAND -> {
+				return finishLoop(mc);
 			}
 			case WAIT -> setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
 		}
 		return true;
+	}
+
+	/** Envoie la commande de fin, puis attend, recommence ou s'arrête. Retourne false si le farm est terminé. */
+	private static boolean finishLoop(Minecraft mc) {
+		loopsDone++;
+		boolean sent = sendEndCommand(mc);
+		if (AutoFarmConfig.loops > 0 && loopsDone >= AutoFarmConfig.loops) {
+			stop(mc, "Terminé (" + loopsDone + " boucle(s) de " + AutoFarmConfig.trips + " aller(s)-retour(s)).");
+			return false;
+		}
+		if (sent && AutoFarmConfig.endWaitSeconds > 0) {
+			setPhase(Phase.WAIT, AutoFarmConfig.endWaitSeconds);
+		} else {
+			setPhase(Phase.LEFT, AutoFarmConfig.leftSeconds);
+		}
+		return true;
+	}
+
+	private static boolean hasEndCommand() {
+		for (String part : AutoFarmConfig.endCommand.split(";")) {
+			if (!part.isBlank()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static void setPhase(Phase next, double seconds) {

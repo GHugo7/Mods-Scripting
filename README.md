@@ -15,11 +15,11 @@ Ce sont les touches par défaut : elles sont modifiables dans *Options > Contrô
 
 ### Déroulement
 
-Une **boucle** = *Allers-retours* × (gauche pendant X s, puis droite pendant Y s), puis la *Commande de fin*,
-puis l'*Attente*. Le mod répète la boucle *Boucles* fois (0 = sans fin).
+Une **boucle** = *Allers-retours* × (gauche pendant X s, puis droite pendant Y s), puis le *Délai avant*
+(immobile), la *Commande de fin*, puis l'*Attente après*. Le mod répète la boucle *Boucles* fois (0 = sans fin).
 
-Exemple : 3 allers-retours, 2 boucles, commande `/home farm`, attente 3 s →
-G-D-G-D-G-D, `/home farm`, 3 s d'attente, G-D-G-D-G-D, `/home farm`, fin.
+Exemple : 3 allers-retours, 2 boucles, commande `/home farm`, délai avant 2 s, attente 3 s →
+G-D-G-D-G-D, 2 s immobile, `/home farm`, 3 s d'attente, G-D-G-D-G-D, 2 s immobile, `/home farm`, fin.
 
 ### Réglages du menu
 
@@ -31,6 +31,7 @@ Passez la souris sur un bouton ou une case pour voir son explication.
 | **Allers-retours** | — | Nombre d'allers-retours (gauche puis droite) dans une boucle. Minimum 1. |
 | **Boucles** | Allers-retours (0 = ∞) | Nombre de fois que la boucle est répétée. `0` ou vide = sans fin. |
 | **Commande de fin** | — | Commande envoyée à la fin de chaque boucle (ex. `/home farm`). Plusieurs : séparez par `;`. Vide = aucune. |
+| **Délai avant (s)** | — | Temps où le joueur reste immobile à la fin des allers-retours, avant d'envoyer la commande (2 s par défaut). Plus naturel qu'une téléportation instantanée. Ignoré s'il n'y a pas de commande. |
 | **Attente après (s)** | — | Temps d'attente après la commande de fin avant de repartir (ex. le temps de la téléportation). |
 | **Texte captcha** | Arrêt si le chat dit | Si un message du chat contient ce texte (majuscules ignorées), le mod se **met en pause en gardant sa progression** et vous prévient. Par défaut `/captcha start`. Vide = désactivé. Après le captcha, `H` pour reprendre. |
 | **Casse auto** | Casser / Casser les blocs visés | Maintient le clic gauche pour casser ce que vous visez pendant les déplacements. **NON** = le mod se déplace seulement. |

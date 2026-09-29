@@ -20,6 +20,7 @@ public class AutoFarmScreen extends Screen {
 	private EditBox tripsBox;
 	private EditBox loopsBox;
 	private EditBox commandBox;
+	private EditBox beforeBox;
 	private EditBox waitBox;
 	private EditBox captchaBox;
 	private String error = "";
@@ -58,6 +59,9 @@ public class AutoFarmScreen extends Screen {
 		commandBox.setHint(Component.literal("ex. /home farm"));
 		commandBox.setTooltip(tip("Commande envoyée à la fin de chaque boucle (ex. /home farm). Plusieurs commandes : séparez-les par ; . Vide = aucune."));
 		addRenderableWidget(commandBox);
+		y += 22;
+		beforeBox = numberBox(cx - 100, y, format(AutoFarmConfig.beforeCommandSeconds), "Délai avant");
+		beforeBox.setTooltip(tip("Temps (en secondes) où le joueur reste immobile à la fin des allers-retours, avant d'envoyer la commande de fin. Plus naturel qu'une téléportation instantanée."));
 		y += 22;
 		waitBox = numberBox(cx - 100, y, format(AutoFarmConfig.endWaitSeconds), "Attente");
 		waitBox.setTooltip(tip("Temps d'attente (en secondes) après la commande de fin, avant de repartir (ex. le temps de la téléportation)."));
@@ -108,7 +112,7 @@ public class AutoFarmScreen extends Screen {
 		addRenderableWidget(volumeSlider);
 
 		// Boutons du bas.
-		y = 176;
+		y = 198;
 		boolean running = AutoFarmController.isRunning();
 		boolean paused = AutoFarmController.isPaused();
 		addRenderableWidget(Button.builder(Component.literal(running ? "§cArrêter" : "§aDémarrer"), b -> {
@@ -162,6 +166,7 @@ public class AutoFarmScreen extends Screen {
 			int trips = tripsBox.getValue().isEmpty() ? 1 : Integer.parseInt(tripsBox.getValue());
 			int loops = loopsBox.getValue().isEmpty() ? 0 : Integer.parseInt(loopsBox.getValue());
 			double wait = waitBox.getValue().isEmpty() ? 0 : parse(waitBox.getValue());
+			double before = beforeBox.getValue().isEmpty() ? 0 : parse(beforeBox.getValue());
 			if (left <= 0 || right <= 0) {
 				error = "Les durées doivent être supérieures à 0.";
 				return false;
@@ -171,6 +176,7 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.trips = Math.max(1, trips);
 			AutoFarmConfig.loops = loops;
 			AutoFarmConfig.endCommand = commandBox.getValue().trim();
+			AutoFarmConfig.beforeCommandSeconds = before;
 			AutoFarmConfig.endWaitSeconds = wait;
 			AutoFarmConfig.captchaText = captchaBox.getValue().trim();
 			error = "";
@@ -213,12 +219,13 @@ public class AutoFarmScreen extends Screen {
 		graphics.drawString(this.font, "Allers-retours :", left, 86, WHITE);
 		graphics.drawString(this.font, "Boucles :", left, 108, WHITE);
 		graphics.drawString(this.font, "Commande de fin :", left, 130, WHITE);
-		graphics.drawString(this.font, "Attente après (s) :", left, 152, WHITE);
+		graphics.drawString(this.font, "Délai avant (s) :", left, 152, WHITE);
+		graphics.drawString(this.font, "Attente après (s) :", left, 174, WHITE);
 		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 202, GRAY);
+			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 224, GRAY);
 		} else {
-			graphics.drawCenteredString(this.font, error, cx, 202, RED);
+			graphics.drawCenteredString(this.font, error, cx, 224, RED);
 		}
 	}
 
