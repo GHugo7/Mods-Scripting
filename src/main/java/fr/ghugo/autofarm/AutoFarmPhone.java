@@ -28,7 +28,10 @@ public final class AutoFarmPhone {
 			"(?<![A-Za-z0-9_])([A-Za-z0-9_]{3,16})\\s*(?:[:>»|]|[\\p{So}\\p{Sm}\\p{Co}])\\s");
 	/** Messages privés courants (« Bob -> moi », « Bob whispers to you »...). */
 	private static final Pattern PRIVATE_MESSAGE = Pattern.compile(
-			"(->|→|➡)\\s*(moi|me|you|vous)\\b|whispers to you|te chuchote|vous chuchote", Pattern.CASE_INSENSITIVE);
+			"(->|-»|»|>>|→|➡|➜|➤|▶|►)\\s*(moi|me|you|vous)(?![\\p{L}0-9_])|whispers to you|te chuchote|vous chuchote",
+			Pattern.CASE_INSENSITIVE);
+	/** Petites majuscules Unicode utilisées par certains serveurs (« ᴍᴏɪ ») → lettres normales. */
+	private static final String SMALL_CAPS = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
 	private static final long MENTION_COOLDOWN_MS = 5_000;
 	private static long lastMentionAt;
 
@@ -75,7 +78,7 @@ public final class AutoFarmPhone {
 			return;
 		}
 		String text = ChatFormatting.stripFormatting(message.getString());
-		if (text == null || !isMentionOf(text, mc.getUser().getName())) {
+		if (text == null || !isMentionOf(normalize(text), mc.getUser().getName())) {
 			return;
 		}
 		long now = System.currentTimeMillis();
@@ -119,6 +122,18 @@ public final class AutoFarmPhone {
 		String content = text.substring(sender.end());
 		Pattern name = Pattern.compile("(?<![A-Za-z0-9_])" + Pattern.quote(me) + "(?![A-Za-z0-9_])", Pattern.CASE_INSENSITIVE);
 		return name.matcher(content).find();
+	}
+
+	/** Convertit les petites majuscules et les caractères « stylés » (pleine chasse…) en lettres normales. */
+	static String normalize(String text) {
+		String s = java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFKC);
+		StringBuilder sb = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			int idx = SMALL_CAPS.indexOf(c);
+			sb.append(idx >= 0 ? (char) ('a' + idx) : c);
+		}
+		return sb.toString();
 	}
 
 	private static String ascii(String s) {
