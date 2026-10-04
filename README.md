@@ -10,6 +10,7 @@ en boucle, tout en **tapant (cassant) les cultures** visées.
 | `K` | Ouvre le menu de réglages |
 | `J` | Démarre depuis le début / arrête complètement |
 | `H` | Pause / reprendre (la progression est gardée) |
+| `L` | Statistiques |
 
 Ce sont les touches par défaut : elles sont modifiables dans *Options > Contrôles > Divers*, et les messages du mod affichent toujours la touche choisie.
 
@@ -54,6 +55,29 @@ ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il se met en pause avec
 En solo, Échap met le monde en pause : ouvrez le monde en LAN pour que la ferme continue, et `F3 + P`
 désactive la pause automatique quand la fenêtre perd le focus. Les réglages sont sauvegardés dans
 `config/autofarm.properties`.
+
+### Statistiques (touche `L` ou bouton « Statistiques » du menu)
+
+Le mod lit le chat du serveur pendant le farm :
+
+| Source | Exemple | Compté comme |
+|---|---|---|
+| Bilan de moisson | `Bénéfices : 72 457 731.61$`, `Cultures récoltées : 605` | **Argent** et **Cultures** (avec la moyenne par heure) |
+| Récompenses | `Tu as reçu +5 Crystaux !`, `Tu as reçu un LuckyBlock !`, `Tu as gagné 1 Token !`, `Tu as obtenu un Fragment de Clé !` | Une ligne par récompense, détectée automatiquement (les nouvelles récompenses apparaissent toutes seules) |
+| Événements | `La Moisson Dorée explose…`, `La Pluie Cristalline ruisselle…`, `L'Aura Solaire Suprême s'embrase…` | Nombre d'apparitions de chaque événement |
+
+L'argent ne vient **que** des bilans de moisson : les gains des événements y sont déjà inclus, donc
+`Tu as reçu 625,000,000 $` n'est pas ajouté une deuxième fois. Les messages des autres joueurs (`X a reçu des cadeaux`) sont ignorés.
+
+L'écran affiche deux colonnes : **Session** (depuis le dernier démarrage) et **Total** (toutes les sessions, gardé même
+après avoir quitté le jeu, dans `config/autofarm-stats.properties`). On y règle aussi :
+
+- les cases ✔/✖ devant chaque ligne : afficher ou masquer la ligne dans le panneau à l'écran et les bilans ;
+- **Panneau à l'écran** : statistiques de la session en haut à gauche pendant le farm ;
+- **Bilan tél** : bilan de la session sur le téléphone jamais, à l'arrêt, ou à l'arrêt et toutes les X minutes ;
+- **Remettre la session / le total à 0** (le total demande une confirmation).
+
+À l'arrêt du farm, le bilan de la session est aussi écrit dans le chat.
 
 ### Notifications sur le téléphone (ntfy)
 

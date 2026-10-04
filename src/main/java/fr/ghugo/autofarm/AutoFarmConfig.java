@@ -7,7 +7,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /** Réglages du mod, sauvegardés dans config/autofarm.properties. */
 public final class AutoFarmConfig {
@@ -45,10 +47,28 @@ public final class AutoFarmConfig {
 	public static String phoneTopic = "";
 	/** Notification téléphone quand un autre joueur mentionne notre pseudo dans le chat. */
 	public static boolean phoneOnMention = true;
+	/** Petit panneau de statistiques à l'écran pendant le farm. */
+	public static boolean statsHud = true;
+	/** Résumé des statistiques sur le téléphone : 0 = jamais, 1 = à l'arrêt, 2 = à l'arrêt et toutes les X minutes. */
+	public static int statsPhoneMode = 1;
+	/** Intervalle (minutes) du résumé périodique sur le téléphone. */
+	public static int statsPhoneMinutes = 60;
+	/** Lignes de statistiques masquées dans le panneau et les résumés. */
+	public static final Set<String> hiddenStats = new LinkedHashSet<>();
 	/** Notification Windows/macOS/Linux au captcha. */
 	public static boolean desktopNotification = true;
 
 	private AutoFarmConfig() {
+	}
+
+	public static boolean isStatHidden(String name) {
+		return hiddenStats.contains(name);
+	}
+
+	public static void toggleStatHidden(String name) {
+		if (!hiddenStats.remove(name)) {
+			hiddenStats.add(name);
+		}
 	}
 
 	public static void load() {
@@ -71,6 +91,15 @@ public final class AutoFarmConfig {
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
 			captchaText = p.getProperty("captchaText", captchaText);
 			phoneTopic = p.getProperty("phoneTopic", phoneTopic);
+			statsHud = Boolean.parseBoolean(p.getProperty("statsHud", String.valueOf(statsHud)));
+			statsPhoneMode = Math.clamp(Integer.parseInt(p.getProperty("statsPhoneMode", String.valueOf(statsPhoneMode))), 0, 2);
+			statsPhoneMinutes = Math.max(1, Integer.parseInt(p.getProperty("statsPhoneMinutes", String.valueOf(statsPhoneMinutes))));
+			hiddenStats.clear();
+			for (String name : p.getProperty("hiddenStats", "").split("\\|")) {
+				if (!name.isBlank()) {
+					hiddenStats.add(name);
+				}
+			}
 			phoneOnMention = Boolean.parseBoolean(p.getProperty("phoneOnMention", String.valueOf(phoneOnMention)));
 			loudAlarm = Boolean.parseBoolean(p.getProperty("loudAlarm", String.valueOf(loudAlarm)));
 			alarmVolume = Math.clamp(Double.parseDouble(p.getProperty("alarmVolume", String.valueOf(alarmVolume))), 0.0, 1.0);
@@ -95,6 +124,10 @@ public final class AutoFarmConfig {
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
 		p.setProperty("captchaText", captchaText);
 		p.setProperty("phoneTopic", phoneTopic);
+		p.setProperty("statsHud", String.valueOf(statsHud));
+		p.setProperty("statsPhoneMode", String.valueOf(statsPhoneMode));
+		p.setProperty("statsPhoneMinutes", String.valueOf(statsPhoneMinutes));
+		p.setProperty("hiddenStats", String.join("|", hiddenStats));
 		p.setProperty("phoneOnMention", String.valueOf(phoneOnMention));
 		p.setProperty("loudAlarm", String.valueOf(loudAlarm));
 		p.setProperty("alarmVolume", String.valueOf(alarmVolume));

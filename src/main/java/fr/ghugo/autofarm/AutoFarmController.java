@@ -67,6 +67,7 @@ public final class AutoFarmController {
 		ticksLeftInPhase = toTicks(AutoFarmConfig.leftSeconds);
 		tripsDone = 0;
 		loopsDone = 0;
+		AutoFarmStats.resetSession();
 		chat(mc, "§a[Auto Farm] Démarré (" + AutoFarmClient.pauseKey() + " : pause, " + AutoFarmClient.toggleKey() + " : arrêter).");
 	}
 
@@ -79,6 +80,14 @@ public final class AutoFarmController {
 		releaseKeys(mc);
 		if (message != null) {
 			chat(mc, "§e[Auto Farm] " + message);
+		}
+		AutoFarmStats.save();
+		if (AutoFarmStats.SESSION.hasData()) {
+			String summary = AutoFarmStats.summary();
+			chat(mc, "§6[Auto Farm] Bilan de la session :\n§f" + summary);
+			if (AutoFarmConfig.statsPhoneMode >= 1) {
+				AutoFarmPhone.send("Auto Farm - Bilan de session", summary, false);
+			}
 		}
 	}
 
@@ -112,8 +121,14 @@ public final class AutoFarmController {
 		}
 	}
 
-	/** Met en pause si le message reçu contient le texte du captcha. */
+	/** Met en pause si le message reçu contient le texte du captcha, et cumule les statistiques. */
 	public static void onChatMessage(Minecraft mc, Component message) {
+		if (running) {
+			String plain = ChatFormatting.stripFormatting(message.getString());
+			if (plain != null) {
+				AutoFarmStats.onChat(plain);
+			}
+		}
 		String trigger = AutoFarmConfig.captchaText;
 		if (!running || paused || trigger.isEmpty()) {
 			return;
@@ -147,6 +162,11 @@ public final class AutoFarmController {
 			return;
 		}
 
+		AutoFarmStats.tick();
+		if (AutoFarmConfig.statsPhoneMode == 2
+				&& AutoFarmStats.SESSION.ticks % (AutoFarmConfig.statsPhoneMinutes * 1200L) == 0) {
+			AutoFarmPhone.send("Auto Farm - Bilan intermédiaire", AutoFarmStats.summary(), false);
+		}
 		if (ticksLeftInPhase <= 0 && !nextPhase(mc)) {
 			return;
 		}

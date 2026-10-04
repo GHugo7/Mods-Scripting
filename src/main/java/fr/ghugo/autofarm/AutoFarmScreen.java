@@ -66,6 +66,9 @@ public class AutoFarmScreen extends Screen {
 		beforeBox.setTooltip(tip("Temps (en secondes) où le joueur reste immobile à la fin des allers-retours, avant d'envoyer la commande de fin. Plus naturel qu'une téléportation instantanée."));
 		y += 22;
 		waitBox = numberBox(cx - 100, y, format(AutoFarmConfig.endWaitSeconds), "Attente");
+		addRenderableWidget(Button.builder(Component.literal("§6Statistiques"), b ->
+				this.minecraft.setScreen(new AutoFarmStatsScreen(this))
+		).tooltip(tip("Ouvre l'écran des statistiques : argent, cultures, récompenses et événements de la session et de toutes les sessions. Touche " + AutoFarmClient.statsKey() + ".")).bounds(left, 190, 200, 20).build());
 		waitBox.setTooltip(tip("Temps d'attente (en secondes) après la commande de fin, avant de repartir (ex. le temps de la téléportation)."));
 
 		// Colonne de droite : captcha, casse et alertes.

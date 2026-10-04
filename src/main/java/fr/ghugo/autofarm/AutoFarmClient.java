@@ -19,6 +19,7 @@ public class AutoFarmClient implements ClientModInitializer {
 	private static KeyMapping openMenuKey;
 	private static KeyMapping toggleKey;
 	private static KeyMapping pauseKey;
+	private static KeyMapping statsKey;
 
 	/** Nom de la touche actuellement configurée (tient compte des changements dans Options > Contrôles). */
 	public static String menuKey() {
@@ -31,6 +32,10 @@ public class AutoFarmClient implements ClientModInitializer {
 
 	public static String pauseKey() {
 		return keyName(pauseKey);
+	}
+
+	public static String statsKey() {
+		return keyName(statsKey);
 	}
 
 	private static String keyName(KeyMapping key) {
@@ -50,6 +55,10 @@ public class AutoFarmClient implements ClientModInitializer {
 				"key.autofarm.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, KeyMapping.Category.MISC));
 		pauseKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.autofarm.pause", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, KeyMapping.Category.MISC));
+		statsKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.autofarm.stats", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_L, KeyMapping.Category.MISC));
+		AutoFarmStats.load();
+		AutoFarmHud.register();
 
 		ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
 			AutoFarmController.onChatMessage(Minecraft.getInstance(), message);
@@ -72,6 +81,9 @@ public class AutoFarmClient implements ClientModInitializer {
 			}
 			while (pauseKey.consumeClick()) {
 				AutoFarmController.togglePause(mc);
+			}
+			while (statsKey.consumeClick()) {
+				mc.setScreen(new AutoFarmStatsScreen(mc.screen));
 			}
 		});
 	}

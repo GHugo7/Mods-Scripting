@@ -1,5 +1,6 @@
 {
 	"key.autofarm.open_menu": "Auto Farm : ouvrir le menu",
 	"key.autofarm.toggle": "Auto Farm : démarrer / arrêter",
-	"key.autofarm.pause": "Auto Farm : pause / reprendre"
+	"key.autofarm.pause": "Auto Farm : pause / reprendre",
+	"key.autofarm.stats": "Auto Farm : statistiques"
 }
