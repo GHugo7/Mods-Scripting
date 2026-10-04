@@ -40,7 +40,7 @@ Passez la souris sur un bouton ou une case pour voir son explication.
 | **Seulement mûres** | Mûres / Cultures mûres uniquement | **OUI** = ignore les cultures qui n'ont pas fini de pousser. **NON** = casse aussi les jeunes pousses. |
 | **Notif PC** | — | Au captcha, notification Windows / macOS / Linux, même si Minecraft est en arrière-plan. |
 | **Téléphone (ntfy)** | — | Nom de votre topic [ntfy](https://ntfy.sh) pour recevoir les alertes sur le téléphone (captcha et mentions). Vide = désactivé. Voir ci-dessous. |
-| **Mention → tél** | — | Notification sur le téléphone quand un autre joueur écrit votre pseudo dans le chat ou vous envoie un message privé. Vos propres messages sont ignorés. |
+| **Mention → tél** | — | Notification sur le téléphone quand un autre joueur écrit votre pseudo dans le chat ou vous envoie un message privé. Vos propres messages sont ignorés (l'auteur est le pseudo juste avant le séparateur : `:`, `>`, `»`, `▶`, `➤`...). |
 | **Alarme** | — | Au captcha, bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas). |
 | **Volume** | Volume alarme | Volume des bips, de 0 à 100 % (30 % par défaut). |
 | **Démarrer / Arrêter** | — | Démarre depuis le début, ou arrête complètement (progression perdue). Comme `J`. |

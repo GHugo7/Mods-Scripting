@@ -19,8 +19,13 @@ import java.util.regex.Pattern;
  */
 public final class AutoFarmPhone {
 	private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-	/** Séparateur entre l'auteur et le message : « <Pseudo> msg », « [Rang] Pseudo: msg », « Pseudo » msg »... */
-	private static final Pattern SENDER_SEPARATOR = Pattern.compile("(?<![-=])[:>»]\\s");
+	/**
+	 * Auteur d'un message de joueur : un pseudo Minecraft (3 à 16 caractères) suivi d'un séparateur puis d'un espace.
+	 * Gère « <Pseudo> msg », « [Rang] Pseudo: msg », « Pseudo » msg », « [P0] [#12] RANG Pseudo ▶ msg »... Le
+	 * séparateur peut être « : », « > », « » », « | » ou n'importe quel symbole (▶, ➤, →, glyphes de pack de ressources).
+	 */
+	private static final Pattern SENDER = Pattern.compile(
+			"(?<![A-Za-z0-9_])([A-Za-z0-9_]{3,16})\\s*(?:[:>»|]|[\\p{So}\\p{Sm}\\p{Co}])\\s");
 	/** Messages privés courants (« Bob -> moi », « Bob whispers to you »...). */
 	private static final Pattern PRIVATE_MESSAGE = Pattern.compile(
 			"(->|→|➡)\\s*(moi|me|you|vous)\\b|whispers to you|te chuchote|vous chuchote", Pattern.CASE_INSENSITIVE);
@@ -82,9 +87,8 @@ public final class AutoFarmPhone {
 	}
 
 	/**
-	 * Vrai si le message vient d'un autre joueur et contient notre pseudo (ou est un message privé).
-	 * L'auteur est la partie avant le premier séparateur (« : », « > », « » ») : si notre pseudo y figure,
-	 * c'est notre propre message et on l'ignore.
+	 * Vrai si le message vient d'un autre joueur et contient notre pseudo (ou est un message privé reçu).
+	 * Si l'auteur (pseudo juste avant le premier séparateur) est nous-même, le message est ignoré.
 	 */
 	static boolean isMentionOf(String text, String me) {
 		if (me == null || me.isBlank()) {
@@ -94,17 +98,17 @@ public final class AutoFarmPhone {
 			// Message privé reçu (« [Bob -> moi] ... ») : nos messages envoyés sont « [moi -> Bob] », non concernés.
 			return true;
 		}
-		Matcher sep = SENDER_SEPARATOR.matcher(text);
-		if (!sep.find()) {
-			// Pas de format « auteur : message » : message du serveur, pas d'un joueur.
+		Matcher sender = SENDER.matcher(text);
+		if (!sender.find()) {
+			// Pas de format « pseudo ▶ message » : message du serveur, pas d'un joueur.
 			return false;
 		}
-		String sender = text.substring(0, sep.start());
-		String content = text.substring(sep.end());
+		if (sender.group(1).equalsIgnoreCase(me)) {
+			// C'est notre propre message.
+			return false;
+		}
+		String content = text.substring(sender.end());
 		Pattern name = Pattern.compile("(?<![A-Za-z0-9_])" + Pattern.quote(me) + "(?![A-Za-z0-9_])", Pattern.CASE_INSENSITIVE);
-		if (name.matcher(sender).find()) {
-			return false;
-		}
 		return name.matcher(content).find();
 	}
 
