@@ -41,6 +41,10 @@ public final class AutoFarmConfig {
 	public static boolean loudAlarm = true;
 	/** Volume de l'alarme, de 0 à 1. */
 	public static double alarmVolume = 0.3;
+	/** Topic ntfy (ou adresse complète) pour les notifications sur le téléphone (vide = désactivé). */
+	public static String phoneTopic = "";
+	/** Notification téléphone quand un autre joueur mentionne notre pseudo dans le chat. */
+	public static boolean phoneOnMention = true;
 	/** Notification Windows/macOS/Linux au captcha. */
 	public static boolean desktopNotification = true;
 
@@ -66,6 +70,8 @@ public final class AutoFarmConfig {
 			cropsOnly = Boolean.parseBoolean(p.getProperty("cropsOnly", String.valueOf(cropsOnly)));
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
 			captchaText = p.getProperty("captchaText", captchaText);
+			phoneTopic = p.getProperty("phoneTopic", phoneTopic);
+			phoneOnMention = Boolean.parseBoolean(p.getProperty("phoneOnMention", String.valueOf(phoneOnMention)));
 			loudAlarm = Boolean.parseBoolean(p.getProperty("loudAlarm", String.valueOf(loudAlarm)));
 			alarmVolume = Math.clamp(Double.parseDouble(p.getProperty("alarmVolume", String.valueOf(alarmVolume))), 0.0, 1.0);
 			desktopNotification = Boolean.parseBoolean(p.getProperty("desktopNotification", String.valueOf(desktopNotification)));
@@ -88,6 +94,8 @@ public final class AutoFarmConfig {
 		p.setProperty("cropsOnly", String.valueOf(cropsOnly));
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
 		p.setProperty("captchaText", captchaText);
+		p.setProperty("phoneTopic", phoneTopic);
+		p.setProperty("phoneOnMention", String.valueOf(phoneOnMention));
 		p.setProperty("loudAlarm", String.valueOf(loudAlarm));
 		p.setProperty("alarmVolume", String.valueOf(alarmVolume));
 		p.setProperty("desktopNotification", String.valueOf(desktopNotification));

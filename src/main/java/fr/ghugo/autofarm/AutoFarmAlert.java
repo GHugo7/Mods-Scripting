@@ -33,6 +33,7 @@ public final class AutoFarmAlert {
 			thread.setDaemon(true);
 			thread.start();
 		}
+		AutoFarmPhone.send("Auto Farm - CAPTCHA", message, true);
 		if (AutoFarmConfig.desktopNotification) {
 			Thread thread = new Thread(() -> notifyDesktop(message), "autofarm-notify");
 			thread.setDaemon(true);

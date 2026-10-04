@@ -24,6 +24,7 @@ public class AutoFarmScreen extends Screen {
 	private EditBox waitBox;
 	private EditBox captchaBox;
 	private EditBox randomBox;
+	private EditBox phoneBox;
 	private String error = "";
 
 	public AutoFarmScreen(Screen parent) {
@@ -112,11 +113,21 @@ public class AutoFarmScreen extends Screen {
 		randomBox = numberBox(cx + 110, y + 22, String.valueOf(AutoFarmConfig.delayRandomPercent), "Hasard délais");
 		randomBox.setFilter(s -> s.matches("\\d{0,3}"));
 		randomBox.setTooltip(tip("Variation aléatoire du délai avant commande et de l'attente après, pour ne jamais avoir exactement le même temps. Ex. 20 % sur 2 s = entre 1,6 et 2,4 s. 0 = délais fixes."));
+		phoneBox = new EditBox(this.font, cx + 110, y + 44, 95, 20, Component.literal("Topic ntfy"));
+		phoneBox.setMaxLength(200);
+		phoneBox.setValue(AutoFarmConfig.phoneTopic);
+		phoneBox.setHint(Component.literal("vide = désactivé"));
+		phoneBox.setTooltip(tip("Nom de votre topic dans l'appli ntfy (Android/iPhone) pour recevoir les alertes sur le téléphone : captcha et mentions. Choisissez un nom long et difficile à deviner (ex. farm-ghugo-8k2q). Vide = désactivé."));
+		addRenderableWidget(phoneBox);
+		addRenderableWidget(Button.builder(toggleLabel("Mention → tél", AutoFarmConfig.phoneOnMention), b -> {
+			AutoFarmConfig.phoneOnMention = !AutoFarmConfig.phoneOnMention;
+			b.setMessage(toggleLabel("Mention → tél", AutoFarmConfig.phoneOnMention));
+		}).tooltip(tip("Envoie une notification sur le téléphone quand un autre joueur écrit votre pseudo dans le chat ou vous envoie un message privé. Vos propres messages sont ignorés. Nécessite le topic ntfy.")).bounds(right, y + 66, 200, 20).build());
 		volumeSlider.setTooltip(tip("Volume des bips de l'alarme (indépendant du volume de Minecraft). Utilisez « Tester » pour l'essayer."));
 		addRenderableWidget(volumeSlider);
 
 		// Boutons du bas.
-		y = 198;
+		y = 216;
 		boolean running = AutoFarmController.isRunning();
 		boolean paused = AutoFarmController.isPaused();
 		addRenderableWidget(Button.builder(Component.literal(running ? "§cArrêter" : "§aDémarrer"), b -> {
@@ -149,9 +160,11 @@ public class AutoFarmScreen extends Screen {
 				onClose();
 			}
 		}).bounds(left + 206, y, 100, 20).build());
-		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b ->
-				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.")
-		).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification, titre) pour vérifier le volume.")).bounds(left + 309, y, 100, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Tester l'alerte"), b -> {
+			if (applyValues()) {
+				AutoFarmAlert.trigger(this.minecraft, "Ceci est un test de l'alerte captcha.");
+			}
+		}).tooltip(tip("Déclenche l'alerte captcha maintenant (son, notification PC et téléphone, titre) pour vérifier que tout marche.")).bounds(left + 309, y, 100, 20).build());
 	}
 
 	private EditBox numberBox(int x, int y, String value, String label) {
@@ -184,6 +197,7 @@ public class AutoFarmScreen extends Screen {
 			AutoFarmConfig.delayRandomPercent = randomBox.getValue().isEmpty() ? 0 : Math.min(100, Integer.parseInt(randomBox.getValue()));
 			AutoFarmConfig.endWaitSeconds = wait;
 			AutoFarmConfig.captchaText = captchaBox.getValue().trim();
+			AutoFarmConfig.phoneTopic = phoneBox.getValue().trim();
 			error = "";
 			return true;
 		} catch (NumberFormatException e) {
@@ -228,10 +242,11 @@ public class AutoFarmScreen extends Screen {
 		graphics.drawString(this.font, "Attente après (s) :", left, 174, WHITE);
 		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
 		graphics.drawString(this.font, "Hasard délais (%) :", cx + 5, 152, WHITE);
+		graphics.drawString(this.font, "Téléphone (ntfy) :", cx + 5, 174, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 224, GRAY);
+			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 242, GRAY);
 		} else {
-			graphics.drawCenteredString(this.font, error, cx, 224, RED);
+			graphics.drawCenteredString(this.font, error, cx, 242, RED);
 		}
 	}
 

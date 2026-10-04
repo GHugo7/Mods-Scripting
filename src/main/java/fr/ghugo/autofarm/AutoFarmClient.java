@@ -51,10 +51,16 @@ public class AutoFarmClient implements ClientModInitializer {
 		pauseKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.autofarm.pause", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, KeyMapping.Category.MISC));
 
-		ClientReceiveMessageEvents.GAME.register((message, overlay) ->
-				AutoFarmController.onChatMessage(Minecraft.getInstance(), message));
-		ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) ->
-				AutoFarmController.onChatMessage(Minecraft.getInstance(), message));
+		ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+			AutoFarmController.onChatMessage(Minecraft.getInstance(), message);
+			if (!overlay) {
+				AutoFarmPhone.onChatMessage(Minecraft.getInstance(), message);
+			}
+		});
+		ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> {
+			AutoFarmController.onChatMessage(Minecraft.getInstance(), message);
+			AutoFarmPhone.onChatMessage(Minecraft.getInstance(), message);
+		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(AutoFarmController::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {

@@ -39,6 +39,8 @@ Passez la souris sur un bouton ou une case pour voir son explication.
 | **Seulement cultures** | Cultures / Cultures uniquement | **OUI** = ne casse que les cultures (blé, carottes, patates, betteraves, verrues, cacao, canne à sucre, cactus, bambou, melon, citrouille), jamais la terre labourée. **NON** = casse n'importe quel bloc visé. |
 | **Seulement mûres** | Mûres / Cultures mûres uniquement | **OUI** = ignore les cultures qui n'ont pas fini de pousser. **NON** = casse aussi les jeunes pousses. |
 | **Notif PC** | — | Au captcha, notification Windows / macOS / Linux, même si Minecraft est en arrière-plan. |
+| **Téléphone (ntfy)** | — | Nom de votre topic [ntfy](https://ntfy.sh) pour recevoir les alertes sur le téléphone (captcha et mentions). Vide = désactivé. Voir ci-dessous. |
+| **Mention → tél** | — | Notification sur le téléphone quand un autre joueur écrit votre pseudo dans le chat ou vous envoie un message privé. Vos propres messages sont ignorés. |
 | **Alarme** | — | Au captcha, bips pendant ~5 s, joués hors de Minecraft (le volume du jeu ne compte pas). |
 | **Volume** | Volume alarme | Volume des bips, de 0 à 100 % (30 % par défaut). |
 | **Démarrer / Arrêter** | — | Démarre depuis le début, ou arrête complètement (progression perdue). Comme `J`. |
@@ -52,6 +54,18 @@ ouvert (Échap, inventaire, fenêtre en arrière-plan) ; il se met en pause avec
 En solo, Échap met le monde en pause : ouvrez le monde en LAN pour que la ferme continue, et `F3 + P`
 désactive la pause automatique quand la fenêtre perd le focus. Les réglages sont sauvegardés dans
 `config/autofarm.properties`.
+
+### Notifications sur le téléphone (ntfy)
+
+1. Installez l'appli **ntfy** ([Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy) / [iPhone](https://apps.apple.com/app/ntfy/id1625396347)).
+2. Dans l'appli, appuyez sur **+** et abonnez-vous à un topic avec un nom long et difficile à deviner,
+   par exemple `farm-ghugo-8k2q` : les topics ntfy sont publics, n'importe qui connaissant le nom peut lire les messages.
+3. Mettez le même nom dans la case **Téléphone (ntfy)** du menu, puis cliquez sur **Tester l'alerte** :
+   la notification doit arriver sur le téléphone.
+
+Vous recevez alors une notification **urgente** au captcha, et une notification quand quelqu'un vous mentionne
+(au plus une toutes les 5 s). La case accepte aussi une adresse complète (`https://mon-serveur-ntfy/topic`)
+si vous hébergez votre propre serveur ntfy.
 
 ## Installation
 
