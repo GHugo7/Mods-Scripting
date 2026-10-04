@@ -27,7 +27,7 @@ public class AutoFarmStatsScreen extends Screen {
 	}
 
 	private int visibleRows() {
-		return Math.max(1, (this.height - 60 - TOP) / ROW_HEIGHT);
+		return Math.max(1, (this.height - 84 - TOP) / ROW_HEIGHT);
 	}
 
 	@Override
@@ -51,7 +51,14 @@ public class AutoFarmStatsScreen extends Screen {
 		}
 
 		// Réglages.
-		int y = this.height - 52;
+		int y = this.height - 76;
+		EditBox alerts = new EditBox(this.font, left + 90, y, 320, 20, Component.literal("Alertes chat"));
+		alerts.setMaxLength(500);
+		alerts.setValue(AutoFarmConfig.chatAlerts);
+		alerts.setResponder(s -> AutoFarmConfig.chatAlerts = s);
+		alerts.setTooltip(tip("Textes du chat qui déclenchent une alerte (titre à l'écran, son de cloche différent du captcha, notification téléphone), séparés par ; . Ex. booster de moisson vient d'expirer ; Moisson Dorée. Le farm continue. Vide = aucune alerte."));
+		addRenderableWidget(alerts);
+		y = this.height - 52;
 		addRenderableWidget(Button.builder(toggleLabel("Panneau à l'écran", AutoFarmConfig.statsHud), b -> {
 			AutoFarmConfig.statsHud = !AutoFarmConfig.statsHud;
 			b.setMessage(toggleLabel("Panneau à l'écran", AutoFarmConfig.statsHud));
@@ -114,9 +121,10 @@ public class AutoFarmStatsScreen extends Screen {
 		}
 		if (rows.size() > visible) {
 			graphics.drawCenteredString(this.font, "molette : défiler (" + (scroll + 1) + "-" + Math.min(rows.size(), scroll + visible) + " / " + rows.size() + ")",
-					cx, this.height - 64, GRAY);
+					cx, this.height - 88, GRAY);
 		}
 		graphics.drawString(this.font, "min", left + 382, this.height - 46, WHITE);
+		graphics.drawString(this.font, "Alertes chat :", left, this.height - 70, WHITE);
 	}
 
 	@Override

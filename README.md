@@ -76,6 +76,9 @@ après avoir quitté le jeu, dans `config/autofarm-stats.properties`). On y règ
 - **Panneau à l'écran** : statistiques de la session en haut à gauche pendant le farm ;
 - **Bilan tél** : bilan de la session sur le téléphone jamais, à l'arrêt, ou à l'arrêt et toutes les X minutes ;
 - **Remettre la session / le total à 0** (le total demande une confirmation).
+- **Alertes chat** : textes du chat qui déclenchent une alerte, séparés par `;` (par défaut
+  `booster de moisson vient d'expirer`). Quand un message contient l'un d'eux : titre à l'écran, **son de cloche**
+  (différent du son du captcha) et notification téléphone. Le farm continue. Vos propres messages sont ignorés.
 
 À l'arrêt du farm, le bilan de la session est aussi écrit dans le chat.
 

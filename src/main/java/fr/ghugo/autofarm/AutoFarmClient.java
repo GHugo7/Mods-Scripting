@@ -64,11 +64,13 @@ public class AutoFarmClient implements ClientModInitializer {
 			AutoFarmController.onChatMessage(Minecraft.getInstance(), message);
 			if (!overlay) {
 				AutoFarmPhone.onChatMessage(Minecraft.getInstance(), message);
+				AutoFarmChatAlerts.onChatMessage(Minecraft.getInstance(), message);
 			}
 		});
 		ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> {
 			AutoFarmController.onChatMessage(Minecraft.getInstance(), message);
 			AutoFarmPhone.onChatMessage(Minecraft.getInstance(), message);
+			AutoFarmChatAlerts.onChatMessage(Minecraft.getInstance(), message);
 		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(AutoFarmController::tick);

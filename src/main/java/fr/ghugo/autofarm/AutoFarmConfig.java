@@ -55,6 +55,8 @@ public final class AutoFarmConfig {
 	public static int statsPhoneMinutes = 60;
 	/** Lignes de statistiques masquées dans le panneau et les résumés. */
 	public static final Set<String> hiddenStats = new LinkedHashSet<>();
+	/** Textes du chat qui déclenchent une alerte (séparés par « ; », vide = désactivé). */
+	public static String chatAlerts = "booster de moisson vient d'expirer";
 	/** Notification Windows/macOS/Linux au captcha. */
 	public static boolean desktopNotification = true;
 
@@ -91,6 +93,7 @@ public final class AutoFarmConfig {
 			matureOnly = Boolean.parseBoolean(p.getProperty("matureOnly", String.valueOf(matureOnly)));
 			captchaText = p.getProperty("captchaText", captchaText);
 			phoneTopic = p.getProperty("phoneTopic", phoneTopic);
+			chatAlerts = p.getProperty("chatAlerts", chatAlerts);
 			statsHud = Boolean.parseBoolean(p.getProperty("statsHud", String.valueOf(statsHud)));
 			statsPhoneMode = Math.clamp(Integer.parseInt(p.getProperty("statsPhoneMode", String.valueOf(statsPhoneMode))), 0, 2);
 			statsPhoneMinutes = Math.max(1, Integer.parseInt(p.getProperty("statsPhoneMinutes", String.valueOf(statsPhoneMinutes))));
@@ -124,6 +127,7 @@ public final class AutoFarmConfig {
 		p.setProperty("matureOnly", String.valueOf(matureOnly));
 		p.setProperty("captchaText", captchaText);
 		p.setProperty("phoneTopic", phoneTopic);
+		p.setProperty("chatAlerts", chatAlerts);
 		p.setProperty("statsHud", String.valueOf(statsHud));
 		p.setProperty("statsPhoneMode", String.valueOf(statsPhoneMode));
 		p.setProperty("statsPhoneMinutes", String.valueOf(statsPhoneMinutes));

@@ -86,6 +86,15 @@ public final class AutoFarmPhone {
 		send("Auto Farm - Mention dans le chat", text, false);
 	}
 
+	/** Vrai si le message est un message de chat écrit par nous-même (« … Pseudo ▶ message »). */
+	static boolean isOwnMessage(String text, String me) {
+		if (me == null || me.isBlank()) {
+			return false;
+		}
+		Matcher sender = SENDER.matcher(text);
+		return sender.find() && sender.group(1).equalsIgnoreCase(me);
+	}
+
 	/**
 	 * Vrai si le message vient d'un autre joueur et contient notre pseudo (ou est un message privé reçu).
 	 * Si l'auteur (pseudo juste avant le premier séparateur) est nous-même, le message est ignoré.
