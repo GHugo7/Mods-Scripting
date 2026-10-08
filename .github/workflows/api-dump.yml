@@ -19,9 +19,9 @@ jobs:
       - run: ./gradlew -p versions/26.2 compileJava --no-daemon || true
       - name: Dump API
         run: |
-          MC=$(find ~/.gradle versions/26.2/.gradle -name "*.jar" 2>/dev/null | grep -i minecraft | grep "26.2" | grep -v sources | xargs ls -S | head -1)
-          echo "MC JAR: $MC"
-          find ~/.gradle versions/26.2/.gradle -name "*.jar" 2>/dev/null | grep -i minecraft | grep 26.2
+          set +e
+          MC=$HOME/.gradle/caches/fabric-loom/26.2/minecraft-client.jar
+          echo "MC JAR: $MC"; ls -la "$MC"
           for c in net.minecraft.client.Minecraft net.minecraft.client.gui.Gui net.minecraft.client.gui.screens.Screen \
                    net.minecraft.client.gui.components.EditBox net.minecraft.client.Options net.minecraft.client.KeyMapping \
                    net.minecraft.client.gui.components.AbstractSliderButton net.minecraft.client.gui.components.Button \
