@@ -1,5 +1,6 @@
 package fr.ghugo.autofarm;
 
+import fr.ghugo.autofarm.compat.Compat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -157,7 +158,7 @@ public final class AutoFarmController {
 		if (paused) {
 			releaseKeys(mc);
 			if (pausedTicks++ % 40 == 0) {
-				mc.gui.setOverlayMessage(Component.literal("§eAuto Farm en pause §7(" + progress() + ") §f— " + AutoFarmClient.pauseKey() + " pour reprendre"), false);
+				Compat.overlay(mc, Component.literal("§eAuto Farm en pause §7(" + progress() + ") §f— " + AutoFarmClient.pauseKey() + " pour reprendre"));
 			}
 			return;
 		}
@@ -188,8 +189,8 @@ public final class AutoFarmController {
 				case BEFORE_COMMAND -> "Avant commande";
 				case WAIT -> "Attente";
 			};
-			mc.gui.setOverlayMessage(Component.literal("§6Auto Farm §f" + what + " §7"
-					+ String.format("%.1f", ticksLeftInPhase / 20.0) + "s | " + progress()), false);
+			Compat.overlay(mc, Component.literal("§6Auto Farm §f" + what + " §7"
+					+ String.format("%.1f", ticksLeftInPhase / 20.0) + "s | " + progress()));
 		}
 
 		ticksLeftInPhase--;
@@ -291,7 +292,7 @@ public final class AutoFarmController {
 	}
 
 	private static void chat(Minecraft mc, String message) {
-		mc.gui.getChat().addMessage(Component.literal(message));
+		Compat.chat(mc, Component.literal(message));
 	}
 
 	/**
@@ -309,7 +310,7 @@ public final class AutoFarmController {
 					if (mc.gameMode.startDestroyBlock(pos, blockHit.getDirection())) {
 						mc.player.swing(InteractionHand.MAIN_HAND);
 					}
-				} else if (mc.screen == null) {
+				} else if (Compat.screen(mc) == null) {
 					holdAttack = true;
 					// Après des allers-retours dans les menus, la souris peut rester libérée : Minecraft ignore
 					// alors le clic maintenu. On la recapture si la fenêtre du jeu est active.

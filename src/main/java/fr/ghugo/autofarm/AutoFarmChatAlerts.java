@@ -1,5 +1,6 @@
 package fr.ghugo.autofarm;
 
+import fr.ghugo.autofarm.compat.Compat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -50,8 +51,7 @@ public final class AutoFarmChatAlerts {
 	}
 
 	private static void alert(Minecraft mc, String text) {
-		mc.gui.setTitle(Component.literal("§e§lAlerte"));
-		mc.gui.setSubtitle(Component.literal("§f" + text));
+		Compat.title(mc, Component.literal("§e§lAlerte"), Component.literal("§f" + text));
 		// Son de cloche, différent de celui du captcha (montée de niveau + bips).
 		mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_BELL, 1.0F));
 		AutoFarmPhone.send("Auto Farm - Alerte chat", text, false);

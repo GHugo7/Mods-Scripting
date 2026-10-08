@@ -103,6 +103,8 @@ si vous hébergez votre propre serveur ntfy.
 3. Mettre le jar dans le dossier `mods/`.
 
 Compiler soi-même (JDK 25) : `./gradlew build` pour 1.21.11, `./gradlew -p versions/26.2 build` pour 26.2.
-Les deux versions partagent le même code source (`src/`) ; le dossier `versions/26.2` ne contient que la configuration du build.
+Les deux versions partagent le même code (`src/main/java`). Seuls les appels qui diffèrent entre les versions de Minecraft
+sont isolés dans `compat/Compat.java` et `compat/BaseScreen.java` : `src/mc1_21_11/java` pour 1.21.11,
+`versions/26.2/src/main/java` pour 26.2.
 
 > ⚠️ Sur un serveur multijoueur, ce genre d'automatisation peut être interdit par les règles.

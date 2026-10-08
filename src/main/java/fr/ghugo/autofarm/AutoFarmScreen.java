@@ -1,6 +1,8 @@
 package fr.ghugo.autofarm;
 
-import net.minecraft.client.gui.GuiGraphics;
+import fr.ghugo.autofarm.compat.BaseScreen;
+import fr.ghugo.autofarm.compat.Compat;
+import fr.ghugo.autofarm.compat.Draw;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -9,7 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 /** Interface de configuration (touche du menu, K par défaut). */
-public class AutoFarmScreen extends Screen {
+public class AutoFarmScreen extends BaseScreen {
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int GRAY = 0xFFA0A0A0;
 	private static final int RED = 0xFFFF5555;
@@ -47,11 +49,11 @@ public class AutoFarmScreen extends Screen {
 		rightBox.setTooltip(tip("Durée (en secondes) pendant laquelle le joueur va à droite. Décimales acceptées (ex. 7.5)."));
 		y += 22;
 		tripsBox = numberBox(cx - 100, y, String.valueOf(AutoFarmConfig.trips), "Allers-retours");
-		tripsBox.setFilter(s -> s.matches("\\d{0,4}"));
+		Compat.restrictInput(tripsBox, "\\d{0,4}", null);
 		tripsBox.setTooltip(tip("Nombre d'allers-retours (gauche puis droite) dans une boucle. Minimum 1."));
 		y += 22;
 		loopsBox = numberBox(cx - 100, y, String.valueOf(AutoFarmConfig.loops), "Boucles");
-		loopsBox.setFilter(s -> s.matches("\\d{0,5}"));
+		Compat.restrictInput(loopsBox, "\\d{0,5}", null);
 		loopsBox.setHint(Component.literal("0 = infini"));
 		loopsBox.setTooltip(tip("Nombre de fois que toute la boucle (les allers-retours + la commande de fin) est répétée. 0 ou vide = sans fin."));
 		y += 22;
@@ -67,7 +69,7 @@ public class AutoFarmScreen extends Screen {
 		y += 22;
 		waitBox = numberBox(cx - 100, y, format(AutoFarmConfig.endWaitSeconds), "Attente");
 		addRenderableWidget(Button.builder(Component.literal("§6Statistiques"), b ->
-				this.minecraft.setScreen(new AutoFarmStatsScreen(this))
+				Compat.setScreen(this.minecraft, new AutoFarmStatsScreen(this))
 		).tooltip(tip("Ouvre l'écran des statistiques : argent, cultures, récompenses et événements de la session et de toutes les sessions. Touche " + AutoFarmClient.statsKey() + ".")).bounds(left, 190, 200, 20).build());
 		waitBox.setTooltip(tip("Temps d'attente (en secondes) après la commande de fin, avant de repartir (ex. le temps de la téléportation)."));
 
@@ -114,7 +116,7 @@ public class AutoFarmScreen extends Screen {
 			}
 		};
 		randomBox = numberBox(cx + 110, y + 22, String.valueOf(AutoFarmConfig.delayRandomPercent), "Hasard délais");
-		randomBox.setFilter(s -> s.matches("\\d{0,3}"));
+		Compat.restrictInput(randomBox, "\\d{0,3}", null);
 		randomBox.setTooltip(tip("Variation aléatoire du délai avant commande et de l'attente après, pour ne jamais avoir exactement le même temps. Ex. 20 % sur 2 s = entre 1,6 et 2,4 s. 0 = délais fixes."));
 		phoneBox = new EditBox(this.font, cx + 110, y + 44, 95, 20, Component.literal("Topic ntfy"));
 		phoneBox.setMaxLength(200);
@@ -139,7 +141,7 @@ public class AutoFarmScreen extends Screen {
 				onClose();
 			} else if (applyValues()) {
 				AutoFarmConfig.save();
-				this.minecraft.setScreen(null);
+				Compat.setScreen(this.minecraft, null);
 				AutoFarmController.start(this.minecraft);
 			}
 		}).tooltip(tip("Démarre depuis le début, ou arrête complètement (la progression est perdue). Touche " + AutoFarmClient.toggleKey() + ".")).bounds(left, y, 100, 20).build());
@@ -149,11 +151,11 @@ public class AutoFarmScreen extends Screen {
 					return;
 				}
 				AutoFarmConfig.save();
-				this.minecraft.setScreen(null);
+				Compat.setScreen(this.minecraft, null);
 				AutoFarmController.resume(this.minecraft);
 			} else {
 				AutoFarmController.pause(this.minecraft, "En pause (" + AutoFarmClient.pauseKey() + " pour reprendre).");
-				this.minecraft.setScreen(null);
+				Compat.setScreen(this.minecraft, null);
 			}
 		}).tooltip(tip("Met en pause sans perdre la progression, puis reprend exactement au même endroit. Touche " + AutoFarmClient.pauseKey() + ".")).bounds(left + 103, y, 100, 20).build());
 		pauseButton.active = running;
@@ -173,7 +175,7 @@ public class AutoFarmScreen extends Screen {
 	private EditBox numberBox(int x, int y, String value, String label) {
 		EditBox box = new EditBox(this.font, x, y, 95, 20, Component.literal(label));
 		box.setMaxLength(8);
-		box.setFilter(s -> s.matches("\\d{0,5}([.,]\\d{0,2})?"));
+		Compat.restrictInput(box, "\\d{0,5}([.,]\\d{0,2})?", null);
 		box.setValue(value);
 		addRenderableWidget(box);
 		return box;
@@ -230,32 +232,31 @@ public class AutoFarmScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
+	protected void drawContent(Draw draw, int mouseX, int mouseY) {
 		int cx = this.width / 2;
-		graphics.drawCenteredString(this.font, this.title, cx, 6, WHITE);
-		graphics.drawCenteredString(this.font, "État : " + AutoFarmController.status(), cx, 20, WHITE);
+		draw.centered(this.title.getString(), cx, 6, WHITE);
+		draw.centered("État : " + AutoFarmController.status(), cx, 20, WHITE);
 		int left = cx - 205;
-		graphics.drawString(this.font, "Secondes à gauche :", left, 42, WHITE);
-		graphics.drawString(this.font, "Secondes à droite :", left, 64, WHITE);
-		graphics.drawString(this.font, "Allers-retours :", left, 86, WHITE);
-		graphics.drawString(this.font, "Boucles :", left, 108, WHITE);
-		graphics.drawString(this.font, "Commande de fin :", left, 130, WHITE);
-		graphics.drawString(this.font, "Délai avant (s) :", left, 152, WHITE);
-		graphics.drawString(this.font, "Attente après (s) :", left, 174, WHITE);
-		graphics.drawString(this.font, "Texte captcha :", cx + 5, 42, WHITE);
-		graphics.drawString(this.font, "Hasard délais (%) :", cx + 5, 152, WHITE);
-		graphics.drawString(this.font, "Téléphone (ntfy) :", cx + 5, 174, WHITE);
+		draw.text("Secondes à gauche :", left, 42, WHITE);
+		draw.text("Secondes à droite :", left, 64, WHITE);
+		draw.text("Allers-retours :", left, 86, WHITE);
+		draw.text("Boucles :", left, 108, WHITE);
+		draw.text("Commande de fin :", left, 130, WHITE);
+		draw.text("Délai avant (s) :", left, 152, WHITE);
+		draw.text("Attente après (s) :", left, 174, WHITE);
+		draw.text("Texte captcha :", cx + 5, 42, WHITE);
+		draw.text("Hasard délais (%) :", cx + 5, 152, WHITE);
+		draw.text("Téléphone (ntfy) :", cx + 5, 174, WHITE);
 		if (error.isEmpty()) {
-			graphics.drawCenteredString(this.font, AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 242, GRAY);
+			draw.centered(AutoFarmClient.menuKey() + " : menu  |  " + AutoFarmClient.toggleKey() + " : démarrer/arrêter  |  " + AutoFarmClient.pauseKey() + " : pause  |  survolez pour l'aide", cx, 242, GRAY);
 		} else {
-			graphics.drawCenteredString(this.font, error, cx, 242, RED);
+			draw.centered(error, cx, 242, RED);
 		}
 	}
 
 	@Override
 	public void onClose() {
-		this.minecraft.setScreen(parent);
+		Compat.setScreen(this.minecraft, parent);
 	}
 
 	@Override

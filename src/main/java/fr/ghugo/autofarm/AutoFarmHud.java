@@ -1,10 +1,8 @@
 package fr.ghugo.autofarm;
 
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.minecraft.client.DeltaTracker;
+import fr.ghugo.autofarm.compat.Compat;
+import fr.ghugo.autofarm.compat.Draw;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +13,12 @@ public final class AutoFarmHud {
 	}
 
 	static void register() {
-		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("autofarm", "stats"), AutoFarmHud::render);
+		Compat.registerHud("stats", AutoFarmHud::render);
 	}
 
-	private static void render(GuiGraphics graphics, DeltaTracker delta) {
+	private static void render(Draw draw) {
 		Minecraft mc = Minecraft.getInstance();
-		if (!AutoFarmConfig.statsHud || !AutoFarmController.isRunning() || mc.options.hideGui) {
+		if (!AutoFarmConfig.statsHud || !AutoFarmController.isRunning() || Compat.hudHidden(mc)) {
 			return;
 		}
 		List<String> lines = new ArrayList<>();
@@ -28,11 +26,11 @@ public final class AutoFarmHud {
 		lines.addAll(AutoFarmStats.hudLines());
 		int width = 0;
 		for (String line : lines) {
-			width = Math.max(width, mc.font.width(line));
+			width = Math.max(width, draw.width(line));
 		}
-		graphics.fill(2, 2, 2 + width + 6, 2 + lines.size() * 10 + 4, 0x90000000);
+		draw.fill(2, 2, 2 + width + 6, 2 + lines.size() * 10 + 4, 0x90000000);
 		for (int i = 0; i < lines.size(); i++) {
-			graphics.drawString(mc.font, lines.get(i), 5, 5 + i * 10, 0xFFFFFFFF);
+			draw.text(lines.get(i), 5, 5 + i * 10, 0xFFFFFFFF);
 		}
 	}
 }

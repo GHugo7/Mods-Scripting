@@ -1,5 +1,6 @@
 package fr.ghugo.autofarm;
 
+import fr.ghugo.autofarm.compat.Compat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -20,8 +21,8 @@ public final class AutoFarmAlert {
 
 	public static void trigger(Minecraft mc, String message) {
 		mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.0F));
-		mc.gui.setTitle(Component.literal("§c§lCAPTCHA !"));
-		mc.gui.setSubtitle(Component.literal("§fAuto Farm en pause — " + AutoFarmClient.pauseKey() + " pour reprendre"));
+		Compat.title(mc, Component.literal("§c§lCAPTCHA !"),
+				Component.literal("§fAuto Farm en pause — " + AutoFarmClient.pauseKey() + " pour reprendre"));
 		// Fait clignoter l'icône de Minecraft dans la barre des tâches.
 		long window = GLFW.glfwGetCurrentContext();
 		if (window != 0L) {

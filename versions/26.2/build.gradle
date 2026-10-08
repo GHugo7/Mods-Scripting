@@ -1,4 +1,4 @@
-// Build du mod pour Minecraft 26.2, à partir des mêmes sources que la version 1.21.11 (../../src).
+// Build du mod pour Minecraft 26.2 : code commun (../../src) + couche de compatibilité 26.2 (src/main/java).
 // Lancer depuis la racine du dépôt : ./gradlew -p versions/26.2 build
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
@@ -12,7 +12,8 @@ version = "${project.version}+${project.minecraft_version}"
 
 sourceSets {
 	main {
-		java.srcDirs = ['../../src/main/java']
+		// Code commun + implémentation 26.2 des appels qui changent selon la version (src/main/java ici).
+		java.srcDirs = ['../../src/main/java', 'src/main/java']
 		resources.srcDirs = ['../../src/main/resources']
 	}
 }

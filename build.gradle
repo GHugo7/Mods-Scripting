@@ -6,6 +6,13 @@ base {
 	archivesName = project.archives_base_name
 }
 
+// Code commun (src/main/java) + implémentation 1.21.11 des appels qui changent selon la version.
+sourceSets {
+	main {
+		java.srcDir 'src/mc1_21_11/java'
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()

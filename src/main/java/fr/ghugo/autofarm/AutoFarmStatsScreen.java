@@ -1,6 +1,8 @@
 package fr.ghugo.autofarm;
 
-import net.minecraft.client.gui.GuiGraphics;
+import fr.ghugo.autofarm.compat.BaseScreen;
+import fr.ghugo.autofarm.compat.Compat;
+import fr.ghugo.autofarm.compat.Draw;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -10,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 
 /** Écran des statistiques (touche L par défaut) : session en cours, total de toutes les sessions et réglages. */
-public class AutoFarmStatsScreen extends Screen {
+public class AutoFarmStatsScreen extends BaseScreen {
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int GRAY = 0xFFA0A0A0;
 	private static final int GOLD = 0xFFFFAA00;
@@ -73,9 +75,8 @@ public class AutoFarmStatsScreen extends Screen {
 				.bounds(left + 154, y, 180, 20).build());
 		EditBox minutes = new EditBox(this.font, left + 338, y, 40, 20, Component.literal("Minutes"));
 		minutes.setMaxLength(4);
-		minutes.setFilter(s -> s.matches("\\d{0,4}"));
 		minutes.setValue(String.valueOf(AutoFarmConfig.statsPhoneMinutes));
-		minutes.setResponder(s -> {
+		Compat.restrictInput(minutes, "\\d{0,4}", s -> {
 			if (!s.isEmpty()) {
 				AutoFarmConfig.statsPhoneMinutes = Math.max(1, Integer.parseInt(s));
 			}
@@ -101,13 +102,12 @@ public class AutoFarmStatsScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
+	protected void drawContent(Draw draw, int mouseX, int mouseY) {
 		int cx = this.width / 2;
 		int left = cx - 205;
-		graphics.drawCenteredString(this.font, this.title, cx, 6, WHITE);
-		graphics.drawString(this.font, "Session", cx + 20, 22, GOLD);
-		graphics.drawString(this.font, "Total", cx + 120, 22, GOLD);
+		draw.centered(this.title.getString(), cx, 6, WHITE);
+		draw.text("Session", cx + 20, 22, GOLD);
+		draw.text("Total", cx + 120, 22, GOLD);
 
 		List<AutoFarmStats.Row> rows = AutoFarmStats.rows();
 		int visible = visibleRows();
@@ -115,16 +115,16 @@ public class AutoFarmStatsScreen extends Screen {
 			AutoFarmStats.Row row = rows.get(i);
 			int y = TOP + (i - scroll) * ROW_HEIGHT;
 			int color = AutoFarmStats.isHidden(row.name()) ? GRAY : WHITE;
-			graphics.drawString(this.font, row.name(), left + 18, y, color);
-			graphics.drawString(this.font, row.session(), cx + 20, y, color);
-			graphics.drawString(this.font, row.total(), cx + 120, y, color);
+			draw.text(row.name(), left + 18, y, color);
+			draw.text(row.session(), cx + 20, y, color);
+			draw.text(row.total(), cx + 120, y, color);
 		}
 		if (rows.size() > visible) {
-			graphics.drawCenteredString(this.font, "molette : défiler (" + (scroll + 1) + "-" + Math.min(rows.size(), scroll + visible) + " / " + rows.size() + ")",
+			draw.centered("molette : défiler (" + (scroll + 1) + "-" + Math.min(rows.size(), scroll + visible) + " / " + rows.size() + ")",
 					cx, this.height - 88, GRAY);
 		}
-		graphics.drawString(this.font, "min", left + 382, this.height - 46, WHITE);
-		graphics.drawString(this.font, "Alertes chat :", left, this.height - 70, WHITE);
+		draw.text("min", left + 382, this.height - 46, WHITE);
+		draw.text("Alertes chat :", left, this.height - 70, WHITE);
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class AutoFarmStatsScreen extends Screen {
 	@Override
 	public void onClose() {
 		AutoFarmConfig.save();
-		this.minecraft.setScreen(parent);
+		Compat.setScreen(this.minecraft, parent);
 	}
 
 	@Override
