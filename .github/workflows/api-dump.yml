@@ -22,29 +22,22 @@ jobs:
           set +e
           MC=$HOME/.gradle/caches/fabric-loom/26.2/minecraft-client.jar
           echo "MC JAR: $MC"; ls -la "$MC"
-          for c in net.minecraft.client.Minecraft net.minecraft.client.gui.Gui net.minecraft.client.gui.screens.Screen \
-                   net.minecraft.client.gui.components.EditBox net.minecraft.client.Options net.minecraft.client.KeyMapping \
-                   net.minecraft.client.gui.components.AbstractSliderButton net.minecraft.client.gui.components.Button \
-                   net.minecraft.client.gui.components.AbstractWidget net.minecraft.client.gui.components.ChatComponent \
-                   net.minecraft.client.multiplayer.MultiPlayerGameMode net.minecraft.client.MouseHandler; do
+          for c in net.minecraft.client.gui.Hud net.minecraft.client.gui.components.ChatComponent net.minecraft.client.gui.screens.Screen \
+                   'net.minecraft.client.KeyMapping$Category' net.minecraft.client.gui.components.AbstractSliderButton \
+                   net.minecraft.client.gui.components.events.AbstractContainerEventHandler net.minecraft.client.gui.components.events.ContainerEventHandler \
+                   net.minecraft.client.gui.components.Tooltip 'net.minecraft.client.gui.components.Button$Builder' \
+                   net.minecraft.client.multiplayer.chat.ChatListener net.minecraft.client.multiplayer.ClientPacketListener \
+                   net.minecraft.client.resources.sounds.SimpleSoundInstance net.minecraft.client.User; do
             echo "=================== $c"
-            javap -public -cp "$MC" "$c" 2>&1 | grep -v "lambda\$" | head -400
+            javap -protected -cp "$MC" "$c" 2>&1 | grep -v "lambda\$" | head -200
           done
-          echo "=================== gui package top-level classes"
-          unzip -l "$MC" | awk '{print $4}' | grep -E '^net/minecraft/client/gui/[A-Za-z]+\.class$'
-          echo "=================== classes with drawString / text drawing"
-          for cls in $(unzip -l "$MC" | awk '{print $4}' | grep -E '^net/minecraft/client/gui/[A-Za-z]+\.class$' | sed 's/\.class$//; s#/#.#g'); do
-            if javap -public -cp "$MC" "$cls" 2>/dev/null | grep -q -E "drawString|drawCenteredString|text\("; then echo "--- $cls"; javap -public -cp "$MC" "$cls" | grep -E "String|fill|class " | head -60; fi
-          done
-          echo "=================== fabric jars"
+          echo "=================== Options hide"
+          javap -public -cp "$MC" net.minecraft.client.Options | grep -i -E "hide|gui"
+          echo "=================== Minecraft screen/hud/chat"
+          javap -public -cp "$MC" net.minecraft.client.Minecraft | grep -i -E "screen|hud|chat|gui"
           FAB=$(find ~/.gradle -name "fabric-*.jar" 2>/dev/null | grep -v sources)
           for j in $FAB; do
-            if unzip -l "$j" | grep -q -i -E "keybind|keymapping|/hud/|message/v1|lifecycle/v1"; then
-              echo "--- $j"; unzip -l "$j" | awk '{print $4}' | grep -E "\.class$" | grep -i -E "keybind|keymapping|hud|message|ClientTickEvents"
-            fi
-          done
-          for j in $FAB; do
-            for cls in $(unzip -l "$j" | awk '{print $4}' | grep -E "(KeyBinding|KeyMapping)[A-Za-z]*Helper\.class$|hud/Hud[A-Za-z]*\.class$|ClientReceiveMessageEvents\.class$|ClientTickEvents\.class$" | sed 's/\.class$//; s#/#.#g'); do
-              echo "=================== $cls"; javap -public -cp "$j:$MC" "$cls" 2>&1 | head -60
+            for cls in $(unzip -l "$j" | awk '{print $4}' | grep -E "ClientReceiveMessageEvents.*\.class$" | sed 's/\.class$//; s#/#.#g'); do
+              echo "=================== $cls"; javap -public -cp "$j:$MC" "$cls" 2>&1 | head -30
             done
           done
