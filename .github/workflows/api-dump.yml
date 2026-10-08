@@ -1,0 +1,50 @@
+name: api-dump
+
+# Temporaire : affiche les signatures des classes Minecraft 26.2 / Fabric API utilisées par le mod.
+on:
+  push:
+    paths:
+      - .github/workflows/api-dump.yml
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - run: ./gradlew -p versions/26.2 compileJava --no-daemon || true
+      - name: Dump API
+        run: |
+          MC=$(find ~/.gradle versions/26.2/.gradle -name "*.jar" 2>/dev/null | grep -i minecraft | grep "26.2" | grep -v sources | xargs ls -S | head -1)
+          echo "MC JAR: $MC"
+          find ~/.gradle versions/26.2/.gradle -name "*.jar" 2>/dev/null | grep -i minecraft | grep 26.2
+          for c in net.minecraft.client.Minecraft net.minecraft.client.gui.Gui net.minecraft.client.gui.screens.Screen \
+                   net.minecraft.client.gui.components.EditBox net.minecraft.client.Options net.minecraft.client.KeyMapping \
+                   net.minecraft.client.gui.components.AbstractSliderButton net.minecraft.client.gui.components.Button \
+                   net.minecraft.client.gui.components.AbstractWidget net.minecraft.client.gui.components.ChatComponent \
+                   net.minecraft.client.multiplayer.MultiPlayerGameMode net.minecraft.client.MouseHandler; do
+            echo "=================== $c"
+            javap -public -cp "$MC" "$c" 2>&1 | grep -v "lambda\$" | head -400
+          done
+          echo "=================== gui package top-level classes"
+          unzip -l "$MC" | awk '{print $4}' | grep -E '^net/minecraft/client/gui/[A-Za-z]+\.class$'
+          echo "=================== classes with drawString / text drawing"
+          for cls in $(unzip -l "$MC" | awk '{print $4}' | grep -E '^net/minecraft/client/gui/[A-Za-z]+\.class$' | sed 's/\.class$//; s#/#.#g'); do
+            if javap -public -cp "$MC" "$cls" 2>/dev/null | grep -q -E "drawString|drawCenteredString|text\("; then echo "--- $cls"; javap -public -cp "$MC" "$cls" | grep -E "String|fill|class " | head -60; fi
+          done
+          echo "=================== fabric jars"
+          FAB=$(find ~/.gradle -name "fabric-*.jar" 2>/dev/null | grep -v sources)
+          for j in $FAB; do
+            if unzip -l "$j" | grep -q -i -E "keybind|keymapping|/hud/|message/v1|lifecycle/v1"; then
+              echo "--- $j"; unzip -l "$j" | awk '{print $4}' | grep -E "\.class$" | grep -i -E "keybind|keymapping|hud|message|ClientTickEvents"
+            fi
+          done
+          for j in $FAB; do
+            for cls in $(unzip -l "$j" | awk '{print $4}' | grep -E "(KeyBinding|KeyMapping)[A-Za-z]*Helper\.class$|hud/Hud[A-Za-z]*\.class$|ClientReceiveMessageEvents\.class$|ClientTickEvents\.class$" | sed 's/\.class$//; s#/#.#g'); do
+              echo "=================== $cls"; javap -public -cp "$j:$MC" "$cls" 2>&1 | head -60
+            done
+          done
