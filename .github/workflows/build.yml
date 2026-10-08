@@ -11,6 +11,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: "1.21.11"
+            dir: "."
+          - minecraft: "26.2"
+            dir: "versions/26.2"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -18,14 +26,24 @@ jobs:
           distribution: temurin
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew build --no-daemon -Pversion=1.0.${{ github.run_number }}
+      - run: ./gradlew -p ${{ matrix.dir }} build --no-daemon -Pversion=1.0.${{ github.run_number }}
       - uses: actions/upload-artifact@v4
         with:
-          name: autofarm-mod
-          path: build/libs/*.jar
-      # Chaque build réussi (hors pull request) est publié en release avec le .jar.
+          name: autofarm-mc${{ matrix.minecraft }}
+          path: ${{ matrix.dir }}/build/libs/*.jar
+
+  # Chaque build réussi (hors pull request) est publié en release avec les deux .jar.
+  release:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: autofarm-mc*
+          path: dist
+          merge-multiple: true
       - uses: softprops/action-gh-release@v2
-        if: github.event_name != 'pull_request'
         with:
           tag_name: build-${{ github.run_number }}
           name: Auto Farm 1.0.${{ github.run_number }}
@@ -35,6 +53,10 @@ jobs:
 
             ${{ github.event.head_commit.message }}
 
-            Installation : Fabric Loader + Fabric API pour Minecraft 1.21.11, puis mettre le .jar dans `mods/`.
-          files: build/libs/*.jar
+            Deux fichiers, prenez celui de votre version de Minecraft :
+            - `autofarm-1.0.${{ github.run_number }}+1.21.11.jar` : Minecraft 1.21.11 (Java 21+)
+            - `autofarm-1.0.${{ github.run_number }}+26.2.jar` : Minecraft 26.2 (Java 25+)
+
+            Installation : Fabric Loader + Fabric API pour votre version de Minecraft, puis mettre le .jar dans `mods/`.
+          files: dist/*.jar
           make_latest: true

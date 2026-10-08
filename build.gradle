@@ -13,12 +13,15 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
+// Version du jar : 1.0.N+1.21.11 (la version 26.2 est construite par versions/26.2).
+version = "${project.version}+${project.minecraft_version}"
+
 processResources {
-	def version = project.version
-	inputs.property "version", version
+	def props = [version: project.version, minecraft_dep: "~${project.minecraft_version}", java_dep: ">=21"]
+	inputs.properties props
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand props
 	}
 }
 

@@ -1,4 +1,4 @@
-# Auto Farm Sweep (Fabric, Minecraft 1.21.11)
+# Auto Farm Sweep (Fabric, Minecraft 1.21.11 et 26.2)
 
 Mod client qui fait aller le joueur **X secondes à gauche** puis **Y secondes à droite**,
 en boucle, tout en **tapant (cassant) les cultures** visées.
@@ -96,9 +96,13 @@ si vous hébergez votre propre serveur ntfy.
 
 ## Installation
 
-1. Installer [Fabric Loader](https://fabricmc.net/use/) pour 1.21.11 et [Fabric API](https://modrinth.com/mod/fabric-api).
-2. Télécharger le `.jar` dans les [Releases](https://github.com/GHugo7/Mods-Scripting/releases) (une release par build),
-   ou compiler avec `./gradlew build` (JDK 25 requis pour Gradle/Loom ; le mod reste compatible Java 21) : le jar est dans `build/libs/`.
+1. Installer [Fabric Loader](https://fabricmc.net/use/) et [Fabric API](https://modrinth.com/mod/fabric-api) pour votre version de Minecraft.
+2. Télécharger le `.jar` dans les [Releases](https://github.com/GHugo7/Mods-Scripting/releases). Chaque release en contient deux :
+   - `autofarm-1.0.N+1.21.11.jar` pour Minecraft **1.21.11** ;
+   - `autofarm-1.0.N+26.2.jar` pour Minecraft **26.2** (Java 25 requis, fourni par le launcher officiel).
 3. Mettre le jar dans le dossier `mods/`.
+
+Compiler soi-même (JDK 25) : `./gradlew build` pour 1.21.11, `./gradlew -p versions/26.2 build` pour 26.2.
+Les deux versions partagent le même code source (`src/`) ; le dossier `versions/26.2` ne contient que la configuration du build.
 
 > ⚠️ Sur un serveur multijoueur, ce genre d'automatisation peut être interdit par les règles.

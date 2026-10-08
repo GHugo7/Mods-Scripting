@@ -1,0 +1,43 @@
+// Build du mod pour Minecraft 26.2, à partir des mêmes sources que la version 1.21.11 (../../src).
+// Lancer depuis la racine du dépôt : ./gradlew -p versions/26.2 build
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+base {
+	archivesName = project.archives_base_name
+}
+
+version = "${project.version}+${project.minecraft_version}"
+
+sourceSets {
+	main {
+		java.srcDirs = ['../../src/main/java']
+		resources.srcDirs = ['../../src/main/resources']
+	}
+}
+
+dependencies {
+	// Minecraft 26.x n'est plus obfusqué : pas de mappings, dépendances en implementation.
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def props = [version: project.version, minecraft_dep: "~${project.minecraft_version}", java_dep: ">=25"]
+	inputs.properties props
+
+	filesMatching("fabric.mod.json") {
+		expand props
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
